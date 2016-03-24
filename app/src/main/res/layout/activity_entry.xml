@@ -226,6 +226,7 @@
         </android.support.v7.widget.Toolbar>
 
         <com.ricardotrujillo.prueba.view.RoundedFrameLayout
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/ivFeedCenterThumbContainer"
             android:layout_width="@dimen/image_width"
             android:layout_height="@dimen/image_width"
@@ -239,7 +240,8 @@
             app:layout_behavior="com.ricardotrujillo.prueba.view.AvatarImageBehavior"
             app:startHeight="2dp"
             app:startToolbarPosition="2dp"
-            app:startXPosition="2dp">
+            app:startXPosition="2dp"
+            custom:radius="15">
 
             <ImageView
                 android:id="@+id/ivFeedCenterThumb"

@@ -195,18 +195,21 @@
         </android.support.v7.widget.Toolbar>
 
         <com.ricardotrujillo.prueba.view.RoundedFrameLayout
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/ivFeedCenterThumbContainer"
             android:layout_width="@dimen/image_width"
             android:layout_height="@dimen/image_width"
             android:layout_gravity="center_horizontal"
             android:clickable="true"
+            android:elevation="10dp"
             android:transitionName="@string/entry_transition_thumb"
             app:finalHeight="@dimen/image_final_width"
             app:finalYPosition="2dp"
             app:layout_behavior="com.ricardotrujillo.prueba.view.AvatarImageBehavior"
             app:startHeight="2dp"
             app:startToolbarPosition="2dp"
-            app:startXPosition="2dp">
+            app:startXPosition="2dp"
+            custom:radius="15">
 
             <ImageView
                 android:id="@+id/ivFeedCenterThumb"

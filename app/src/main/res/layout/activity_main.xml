@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:elevation="10dp"
-                custom:shadow_radius="21">
+                custom:radius="21">
 
                 <ImageView
                     android:layout_width="wrap_content"

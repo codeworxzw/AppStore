@@ -37,7 +37,7 @@ public class AnimWorker {
 
     }
 
-    public static int dpToPx(int dp) {
+    public int dpToPx(int dp) {
 
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }

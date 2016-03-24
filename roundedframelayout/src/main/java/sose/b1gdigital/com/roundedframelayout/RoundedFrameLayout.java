@@ -1,4 +1,4 @@
-package com.ricardotrujillo.prueba.view;
+package sose.b1gdigital.com.roundedframelayout;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -14,13 +14,9 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
-
-import com.ricardotrujillo.prueba.R;
 
 public class RoundedFrameLayout extends FrameLayout {
     private final static float CORNER_RADIUS = 15.0f;

@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/greendao-generator/greendao-generator.iml" filepath="$PROJECT_DIR$/greendao-generator/greendao-generator.iml" />
       <module fileurl="file://$PROJECT_DIR$/greendao-generator/greendao-generator.iml" filepath="$PROJECT_DIR$/greendao-generator/greendao-generator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/roundedframelayout/roundedframelayout.iml" filepath="$PROJECT_DIR$/roundedframelayout/roundedframelayout.iml" />
     </modules>
   </component>
 </project>

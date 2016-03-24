@@ -72,7 +72,7 @@ public class EntryActivity extends AppCompatActivity
 
         initTransition();
 
-        measurementsWorker.setScreenOrientation(this);
+        //measurementsWorker.setScreenOrientation(this);
 
         if (savedInstanceState == null) {
 

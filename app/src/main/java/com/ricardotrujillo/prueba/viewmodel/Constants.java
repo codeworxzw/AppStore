@@ -3,7 +3,7 @@ package com.ricardotrujillo.prueba.viewmodel;
 public class Constants {
 
     final public static int SOCKET_TIME_OUT = 30000;
-    final public static String URL = "https://itunes.apple.com/us/rss/topfreeapplications/limit=20/json";
+    final public static String URL = "https://itunes.apple.com/us/rss/topfreeapplications/limit=200/json";
     final public static String TAG = "TAG";
 
     final public static String LogTag = "Test";

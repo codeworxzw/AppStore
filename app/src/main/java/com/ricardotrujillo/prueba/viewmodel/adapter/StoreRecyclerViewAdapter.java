@@ -26,11 +26,13 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.ricardotrujillo.prueba.App;
@@ -131,18 +133,21 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
 
                             public void onGenerated(Palette palette) {
 
-                                if (!storeManager.getStore().feed.entry.get(position).imageLoaded) {
+                                if (position < storeManager.getStore().feed.entry.size()) {
 
-                                    holder.binding.ivContainer.animate().setDuration(500).alpha(1f);
+                                    if (!storeManager.getStore().feed.entry.get(position).imageLoaded) {
 
-                                    storeManager.getStore().feed.entry.get(position).imageLoaded = true; //First insert animation
+                                        holder.binding.ivContainer.animate().setDuration(500).alpha(1f);
+
+                                        storeManager.getStore().feed.entry.get(position).imageLoaded = true; //First insert animation
+                                    }
+
+                                    storeManager.getStore().feed.entry.get(position).paletteColor = animWorker.getDarkColorDrawable(palette).getColor();
+
+                                    holder.binding.ivContainer.setBackgroundDrawable(animWorker.getDarkColorDrawable(palette)); // min supported API is 14
+
+                                    storeManager.addDrawables(position, animWorker.getDarkColorDrawable(palette));
                                 }
-
-                                storeManager.getStore().feed.entry.get(position).paletteColor = animWorker.getDarkColorDrawable(palette).getColor();
-
-                                holder.binding.ivContainer.setBackgroundDrawable(animWorker.getDarkColorDrawable(palette)); // min supported API is 14
-
-                                storeManager.addDrawables(position, animWorker.getDarkColorDrawable(palette));
                             }
                         });
                     }
@@ -162,7 +167,7 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
 
                     holder.binding.ivContainer.setBackgroundDrawable(storeManager.getColorDrawable(storeManager.getStore().feed.entry.get(position).name.label)); // min supported API is 14
 
-                    holder.binding.ivContainer.animate().setDuration(500).alpha(1f);
+                    holder.binding.ivContainer.setAlpha(1f);
                 }
 
                 @Override
@@ -172,12 +177,7 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
             });
         }
 
-        holder.getBinding().executePendingBindings();
-
-        if (getItemViewType(position) == VIEW_TYPE_LOADER) {
-
-            bindLoadingFeedItem((LoadingCellFeedViewHolder) holder);
-        }
+        holder.getBinding(position).executePendingBindings();
 
         setAnimation(holder.binding.cardView, position);
     }
@@ -191,6 +191,7 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
             viewToAnimate.startAnimation(animation);
 
             lastPosition = position;
+
         }
     }
 
@@ -214,32 +215,6 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
 
                     }
                 });
-    }
-
-    private void bindLoadingFeedItem(final LoadingCellFeedViewHolder holder) {
-
-        holder.loadingFeedItemView.setOnLoadingFinishedListener(new LoadingFeedItemView.OnLoadingFinishedListener() {
-            @Override
-            public void onLoadingFinished() {
-
-                showLoadingView = false;
-
-                notifyItemChanged(0);
-            }
-        });
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-
-        if (showLoadingView && position == 0) {
-
-            return VIEW_TYPE_LOADER;
-
-        } else {
-
-            return VIEW_TYPE_DEFAULT;
-        }
     }
 
     public void onClickButton(View view, BindingHolder holder) {
@@ -322,7 +297,7 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
         void onClick(View view);
     }
 
-    public static class BindingHolder extends RecyclerView.ViewHolder {
+    public class BindingHolder extends RecyclerView.ViewHolder {
 
         StoreRowBinding binding;
 
@@ -335,7 +310,26 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
             binding.setViewModel(new EntryViewModel(activity));
         }
 
-        public StoreRowBinding getBinding() {
+        public StoreRowBinding getBinding(int position) {
+
+            int bottomMargin;
+
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) binding.cardView.getLayoutParams();
+
+            if (position == storeManager.getStore().feed.entry.size() - 1) {
+
+                bottomMargin = animWorker.dpToPx(8);
+
+                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+
+            } else {
+
+                bottomMargin = animWorker.dpToPx(0);
+
+                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+            }
+
+            binding.cardView.setLayoutParams(params);
 
             return binding;
         }
@@ -343,17 +337,6 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
         public void clearAnimation() {
 
             binding.getRoot().clearAnimation();
-        }
-    }
-
-    public static class LoadingCellFeedViewHolder extends BindingHolder {
-
-        LoadingFeedItemView loadingFeedItemView;
-
-        public LoadingCellFeedViewHolder(LoadingFeedItemView view) {
-            super(view);
-
-            this.loadingFeedItemView = view;
         }
     }
 }

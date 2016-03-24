@@ -9,8 +9,4 @@
         <attr name="finalHeight" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="RoundedFrameLayout">
-        <attr name="shadow_radius" format="integer" />
-    </declare-styleable>
-
 </resources>

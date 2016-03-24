@@ -76,7 +76,7 @@
                 android:layout_centerInParent="true"
                 android:background="@color/colorPrimary"
                 android:elevation="10dp"
-                custom:shadow_radius="26">
+                custom:radius="21">
 
                 <ImageView
                     android:layout_width="wrap_content"

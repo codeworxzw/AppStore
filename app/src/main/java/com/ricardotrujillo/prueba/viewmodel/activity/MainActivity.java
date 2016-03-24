@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         shouldShowSplash();
 
-        setUpDrawer();
+        setOrientation();
 
         initTransition();
 
@@ -136,18 +136,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void setUpDrawer() {
+    void setOrientation() {
 
         if (measurementsWorker.setScreenOrientation(this)) {
 
             setupToolBar(true);
 
-            setupDrawer();
+            setUpDrawer();
 
         } else {
 
             setupToolBar(false);
         }
+
     }
 
     void setupToolBar(boolean portrait) {
@@ -238,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupDrawer() {
+    private void setUpDrawer() {
 
         drawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
@@ -265,14 +266,14 @@ public class MainActivity extends AppCompatActivity {
 
         drawerToggle.setDrawerIndicatorEnabled(true);
 
-        binding.drawerLayout.addDrawerListener(drawerToggle);
+        if (binding.drawerLayout != null) binding.drawerLayout.addDrawerListener(drawerToggle);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        if (drawerToggle != null) drawerToggle.syncState();
+        if (binding.drawerLayout != null) drawerToggle.syncState();
     }
 
     @Override

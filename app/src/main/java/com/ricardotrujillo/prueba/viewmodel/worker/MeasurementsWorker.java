@@ -84,18 +84,20 @@ public class MeasurementsWorker {
 
     public boolean setScreenOrientation(Activity activity) {
 
-        if (!isTablet(activity)) {
+        //if (!isTablet(activity)) {
+//
+        //    //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//
+        //    return true;
+//
+        //} else {
+//
+        //    //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//
+        //    return false;
+        //}
 
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-            return true;
-
-        } else {
-
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-            return false;
-        }
+        return activity.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE;
     }
 
     private class Measurements {
