@@ -5,13 +5,15 @@ import com.ricardotrujillo.prueba.model.EntryViewModel;
 import com.ricardotrujillo.prueba.viewmodel.activity.EntryActivity;
 import com.ricardotrujillo.prueba.viewmodel.activity.MainActivity;
 import com.ricardotrujillo.prueba.viewmodel.adapter.StoreRecyclerViewAdapter;
+import com.ricardotrujillo.prueba.viewmodel.di.modules.AppModule;
 import com.ricardotrujillo.prueba.viewmodel.di.modules.StoreModule;
 import com.ricardotrujillo.prueba.viewmodel.di.modules.WorkersModule;
 import com.ricardotrujillo.prueba.viewmodel.di.scopes.AppScope;
 import com.ricardotrujillo.prueba.viewmodel.fragment.StoreFragment;
+import com.ricardotrujillo.prueba.viewmodel.worker.NetWorker;
 
 @AppScope
-@dagger.Component(modules = {StoreModule.class, WorkersModule.class})
+@dagger.Component(modules = {AppModule.class, StoreModule.class, WorkersModule.class})
 public interface AppComponent {
 
     void inject(App app);
@@ -25,4 +27,6 @@ public interface AppComponent {
     void inject(StoreRecyclerViewAdapter storeRecyclerViewAdapter);
 
     void inject(EntryViewModel entryViewModel);
+
+    void inject(NetWorker netWorker);
 }

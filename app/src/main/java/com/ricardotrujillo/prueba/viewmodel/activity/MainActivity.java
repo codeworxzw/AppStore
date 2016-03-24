@@ -19,7 +19,10 @@ import com.ricardotrujillo.prueba.R;
 import com.ricardotrujillo.prueba.databinding.ActivityMainBinding;
 import com.ricardotrujillo.prueba.model.Store;
 import com.ricardotrujillo.prueba.model.StoreManager;
+import com.ricardotrujillo.prueba.viewmodel.Constants;
 import com.ricardotrujillo.prueba.viewmodel.comparator.IgnoreCaseComparator;
+import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusRequest;
+import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusResponse;
 import com.ricardotrujillo.prueba.viewmodel.event.FetchedStoreDataEvent;
 import com.ricardotrujillo.prueba.viewmodel.event.RecyclerCellEvent;
 import com.ricardotrujillo.prueba.viewmodel.worker.AnimWorker;
@@ -93,26 +96,32 @@ public class MainActivity extends AppCompatActivity {
         checkForNetwork();
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        busWorker.unRegister(this);
+    }
+
     void checkForNetwork() {
 
-        netWorker.isNetworkAvailable(this, new NetWorker.ConnectionStatusListener() {
+        busWorker.post(new ConnectivityStatusRequest());
+    }
 
-            @Override
-            public void onResult(boolean connected) {
+    @Subscribe
+    public void recievedMessage(ConnectivityStatusResponse e) {
 
-                if (!connected) {
+        if (!e.isConnected()) {
 
-                    snackbar = Snackbar
-                            .make(binding.getRoot(), getString(R.string.no_connectivity), Snackbar.LENGTH_INDEFINITE);
+            snackbar = Snackbar
+                    .make(binding.getRoot(), getString(R.string.no_connectivity), Snackbar.LENGTH_INDEFINITE);
 
-                    snackbar.show();
+            snackbar.show();
 
-                } else {
+        } else {
 
-                    if (snackbar != null) snackbar.dismiss();
-                }
-            }
-        });
+            if (snackbar != null) snackbar.dismiss();
+        }
     }
 
     void shouldShowSplash() {

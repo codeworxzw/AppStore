@@ -1,5 +1,6 @@
 package com.ricardotrujillo.prueba.viewmodel.di.modules;
 
+import com.ricardotrujillo.prueba.App;
 import com.ricardotrujillo.prueba.viewmodel.di.scopes.AppScope;
 import com.ricardotrujillo.prueba.viewmodel.worker.AnimWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.BusWorker;
@@ -45,9 +46,9 @@ public class WorkersModule {
 
     @Provides
     @AppScope
-    NetWorker provideNetWorker() {
+    NetWorker provideNetWorker(App app) {
 
-        return new NetWorker();
+        return new NetWorker(app);
     }
 
     @Provides

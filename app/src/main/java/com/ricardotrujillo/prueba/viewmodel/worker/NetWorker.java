@@ -15,7 +15,12 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.ricardotrujillo.prueba.App;
 import com.ricardotrujillo.prueba.viewmodel.Constants;
+import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusRequest;
+import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusResponse;
+import com.ricardotrujillo.prueba.viewmodel.event.FetchedStoreDataEvent;
+import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -25,10 +30,39 @@ import javax.inject.Inject;
 
 public class NetWorker {
 
-    private RequestQueue queue;
-    @Inject
-    public NetWorker() {
+    App app;
 
+    private RequestQueue queue;
+
+    @Inject
+    BusWorker busWorker;
+
+    @Inject
+    public NetWorker(App app) {
+
+        this.app = app;
+
+        inject();
+
+        busWorker.register(this);
+    }
+
+    void inject() {
+
+        app.getAppComponent().inject(this);
+    }
+
+    @Subscribe
+    public void recievedMessage(final ConnectivityStatusRequest event) {
+
+        isNetworkAvailable(app, new NetWorker.ConnectionStatusListener() {
+
+            @Override
+            public void onResult(boolean status) {
+
+                busWorker.post(new ConnectivityStatusResponse(status, event.getPosition()));
+            }
+        });
     }
 
     public static boolean isConnected(Activity activity) {
@@ -38,7 +72,7 @@ public class NetWorker {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void isNetworkAvailable(Context context, final ConnectionStatusListener listener) {
+    void isNetworkAvailable(Context context, final ConnectionStatusListener listener) {
 
         new CheckConnectivity(context, new ConnectionStatusListener() {
 

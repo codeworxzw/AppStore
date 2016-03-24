@@ -8,11 +8,17 @@ import com.ricardotrujillo.prueba.model.StoreManager;
 import com.ricardotrujillo.prueba.viewmodel.Constants;
 import com.ricardotrujillo.prueba.viewmodel.di.components.AppComponent;
 import com.ricardotrujillo.prueba.viewmodel.di.components.DaggerAppComponent;
+import com.ricardotrujillo.prueba.viewmodel.di.modules.AppModule;
+import com.ricardotrujillo.prueba.viewmodel.di.modules.StoreModule;
+import com.ricardotrujillo.prueba.viewmodel.di.modules.WorkersModule;
+import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusRequest;
+import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusResponse;
 import com.ricardotrujillo.prueba.viewmodel.event.FetchedStoreDataEvent;
 import com.ricardotrujillo.prueba.viewmodel.event.MessageEvent;
 import com.ricardotrujillo.prueba.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.prueba.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.DbWorker;
+import com.ricardotrujillo.prueba.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.NetWorker;
 import com.squareup.otto.Subscribe;
 
@@ -31,6 +37,8 @@ public class App extends Application {
     StoreManager storeManager;
     @Inject
     BusWorker busWorker;
+    @Inject
+    LogWorker logWorker;
 
     private AppComponent appComponent;
 
@@ -43,17 +51,20 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        appComponent = DaggerAppComponent.create();
-        appComponent.inject(this);
+        //appComponent = DaggerAppComponent.create();
+        //appComponent.inject(this);
+
+        appComponent = DaggerAppComponent.builder()
+                .appModule(new AppModule(this))
+                .storeModule(new StoreModule())
+                .workersModule(new WorkersModule())
+                .build();
+
+        getAppComponent().inject(this);
 
         busWorker.register(this);
 
         checkForLoadedData(0);
-    }
-
-    @Subscribe
-    public void recievedMessage(MessageEvent event) {
-
     }
 
     @Subscribe
@@ -66,31 +77,28 @@ public class App extends Application {
 
         if (storeManager.getStore() == null) {
 
-            checkForConnectivity(position);
+            busWorker.post(new ConnectivityStatusRequest(position));
 
         } else {
 
-            busWorker.getBus().post(new FetchedStoreDataEvent(position));
+            busWorker.post(new FetchedStoreDataEvent(position));
         }
     }
 
-    void checkForConnectivity(final int position) {
+    @Subscribe
+    public void recievedMessage(ConnectivityStatusResponse e) {
 
-        netWorker.isNetworkAvailable(this, new NetWorker.ConnectionStatusListener() {
+        if (e.getPostion() >= 0) {
 
-            @Override
-            public void onResult(boolean connected) {
+            if (e.isConnected()) {
 
-                if (connected) {
+                getData(e.getPostion(), Constants.URL);
 
-                    getData(position, Constants.URL);
+            } else {
 
-                } else {
-
-                    getSavedData(position);
-                }
+                getSavedData(e.getPostion());
             }
-        });
+        }
     }
 
     void getSavedData(int position) {
