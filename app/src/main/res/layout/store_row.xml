@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?><!-- item_feed.xml -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
             name="click"
-            type="com.ricardotrujillo.prueba.viewmodel.adapter.StoreRecyclerViewAdapter.StoreClickHandler" />
+            type="com.ricardotrujillo.appstore.viewmodel.adapter.StoreRecyclerViewAdapter.StoreClickHandler" />
 
         <variable
             name="entry"
-            type="com.ricardotrujillo.prueba.model.Store.Feed.Entry" />
+            type="com.ricardotrujillo.appstore.model.Store.Feed.Entry" />
 
         <variable
             name="viewModel"
-            type="com.ricardotrujillo.prueba.model.EntryViewModel" />
+            type="com.ricardotrujillo.appstore.model.EntryViewModel" />
     </data>
 
     <android.support.v7.widget.CardView
@@ -40,7 +39,7 @@
                 android:clipToPadding="false"
                 android:padding="@dimen/card_margins">
 
-                <com.ricardotrujillo.prueba.view.RoundedFrameLayout
+                <com.ricardotrujillo.appstore.view.RoundedFrameLayout
                     xmlns:custom="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/vImageRoot"
                     android:layout_width="70dp"
@@ -58,7 +57,7 @@
                         android:transitionName="@string/entry_transition_thumb"
                         app:imageUrl="@{entry.image[2].label}" />
 
-                </com.ricardotrujillo.prueba.view.RoundedFrameLayout>
+                </com.ricardotrujillo.appstore.view.RoundedFrameLayout>
 
             </RelativeLayout>
 
@@ -69,10 +68,10 @@
                 android:layout_alignBottom="@+id/ivContainer"
                 android:layout_alignTop="@+id/ivContainer"
                 android:layout_centerVertical="true"
-                android:padding="8dp"
                 android:layout_toEndOf="@+id/ivContainer"
                 android:layout_toRightOf="@+id/ivContainer"
                 android:orientation="vertical"
+                android:padding="8dp"
                 android:transitionName="@string/entry_transition_name">
 
                 <TextView
