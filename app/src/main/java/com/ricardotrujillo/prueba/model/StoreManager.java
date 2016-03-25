@@ -45,11 +45,6 @@ public class StoreManager {
         colorDrawables.put(store.feed.entry.get(position).name.label, colorDrawable);
     }
 
-    //public Drawable getDrawable(int position) {
-
-    //    return colorDrawables[position];
-    //}
-
     public ColorDrawable getColorDrawable(String name) {
 
         return colorDrawables.get(name);

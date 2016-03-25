@@ -60,8 +60,8 @@ public class WorkersModule {
 
     @Provides
     @AppScope
-    AnimWorker provideAnimWorker() {
+    AnimWorker provideAnimWorker(App app) {
 
-        return new AnimWorker();
+        return new AnimWorker(app);
     }
 }

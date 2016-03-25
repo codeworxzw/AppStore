@@ -21,6 +21,7 @@ import com.ricardotrujillo.prueba.viewmodel.Constants;
 import com.ricardotrujillo.prueba.viewmodel.adapter.StoreRecyclerViewAdapter;
 import com.ricardotrujillo.prueba.viewmodel.event.FetchedStoreDataEvent;
 import com.ricardotrujillo.prueba.viewmodel.event.RecyclerCellEvent;
+import com.ricardotrujillo.prueba.viewmodel.event.SplashDoneEvent;
 import com.ricardotrujillo.prueba.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.NetWorker;
@@ -82,6 +83,12 @@ public class StoreFragment extends Fragment {
 
     @Subscribe
     public void recievedMessage(FetchedStoreDataEvent event) {
+
+        //adapter.notifyDataSetChanged();
+    }
+
+    @Subscribe
+    public void recievedMessage(SplashDoneEvent event) {
 
         adapter.notifyDataSetChanged();
     }

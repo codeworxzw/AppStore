@@ -15,7 +15,7 @@ public class Constants {
     final public static int REVEAL_ANIMATION = 550;
     final public static int REVEAL_ANIMATION_SPLASH = 400;
     final public static int AVATAR_ANIMATION_DURATION_IN = 1000;
-    final public static int AVATAR_ANIMATION_DURATION_OUT = 325;
+    final public static int AVATAR_ANIMATION_DURATION_OUT = 1000;
     final public static int AVATAR_ANIMATION_ROTATION = 750;
     final public static int SPAN_COUNT = 3;
 

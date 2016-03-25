@@ -35,7 +35,7 @@
 
             <RelativeLayout
                 android:id="@+id/ivContainer"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
                 android:padding="@dimen/card_margins">
@@ -43,17 +43,18 @@
                 <com.ricardotrujillo.prueba.view.RoundedFrameLayout
                     xmlns:custom="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/vImageRoot"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:elevation="10dp"
-                    custom:radius="15">
+                    custom:radius="15" >
 
                     <ImageView
                         android:id="@+id/ivFeedCenter"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
                         android:onClick="@{click.onClick}"
-                        android:scaleType="centerCrop"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/img_feed_center_1"
                         android:transitionName="@string/entry_transition_thumb"
                         app:imageUrl="@{entry.image[2].label}" />
@@ -66,15 +67,12 @@
                 android:id="@+id/tvName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/ivContainer"
-                android:layout_alignTop="@+id/ivContainer"
-                android:layout_centerVertical="true"
+                android:layout_alignParentBottom="true"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_toEndOf="@+id/ivContainer"
-                android:layout_toRightOf="@+id/ivContainer"
+                android:layout_below="@+id/ivContainer"
                 android:orientation="vertical"
                 android:transitionName="@string/entry_transition_name">
 

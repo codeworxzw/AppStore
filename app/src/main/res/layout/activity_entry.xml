@@ -76,10 +76,12 @@
                             android:textColor="@android:color/white" />
 
                     </LinearLayout>
-                </FrameLayout>
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
 
+                </FrameLayout>
+
+            </android.support.design.widget.CollapsingToolbarLayout>
+
+        </android.support.design.widget.AppBarLayout>
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"

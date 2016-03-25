@@ -18,24 +18,43 @@ import android.renderscript.ScriptIntrinsicBlur;
 import android.support.v7.graphics.Palette;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.AnticipateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 
+import com.ricardotrujillo.prueba.App;
 import com.ricardotrujillo.prueba.viewmodel.Constants;
+import com.ricardotrujillo.prueba.viewmodel.event.SplashDoneEvent;
 import com.squareup.picasso.Callback;
 
 import javax.inject.Inject;
 
 public class AnimWorker {
 
+    App app;
 
     @Inject
-    public AnimWorker() {
+    BusWorker busWorker;
 
+    @Inject
+    public AnimWorker(App app) {
+
+        this.app = app;
+
+        inject();
+
+        busWorker.register(this);
     }
+
+    void inject() {
+
+        app.getAppComponent().inject(this);
+    }
+
 
     public int dpToPx(int dp) {
 
@@ -161,8 +180,10 @@ public class AnimWorker {
 
         v.animate()
                 .scaleXBy(0.3f)
+                .scaleYBy(0.3f)
+                .rotationBy(180)
                 .setDuration(Constants.AVATAR_ANIMATION_DURATION_IN)
-                .setInterpolator(new LinearInterpolator())
+                .setInterpolator(new AnticipateInterpolator(3f))
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -172,15 +193,14 @@ public class AnimWorker {
                     @Override
                     public void onAnimationEnd(Animator animation) {
 
-                        v.setRotation(0);
-
-                        v.animate()
-                                .scaleXBy(-0.3f);
+                        //v.setRotation(0);
 
                         v.animate()
                                 .scaleYBy(-0.3f)
+                                .scaleXBy(-0.3f)
+                                .rotationBy(180)
                                 .setDuration(Constants.AVATAR_ANIMATION_DURATION_OUT)
-                                .setInterpolator(new OvershootInterpolator(7f))
+                                .setInterpolator(new OvershootInterpolator(3f))
                                 .setListener(new Animator.AnimatorListener() {
                                     @Override
                                     public void onAnimationStart(Animator animation) {
@@ -189,6 +209,8 @@ public class AnimWorker {
 
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
+
+                                        v.setRotation(0);
 
                                         callback.onSuccess();
                                     }
@@ -215,14 +237,6 @@ public class AnimWorker {
 
                     }
                 });
-
-        v.animate()
-                .scaleYBy(0.3f);
-
-        v.animate()
-                .rotation(360)
-                .setInterpolator(new AnticipateOvershootInterpolator())
-                .setDuration(Constants.AVATAR_ANIMATION_ROTATION);
     }
 
     public int alterColor(int color, float factor) {
@@ -268,22 +282,20 @@ public class AnimWorker {
 
     public void animateSlash(final View view, final View root) {
 
-        view.setScaleX(0f);
-        view.setScaleY(0f);
+        view.setScaleX(10f);
+        view.setScaleY(10f);
         view.setAlpha(0f);
 
-        view.animate()
-                .setDuration(400)
-                .alpha(1f);
+        //view.animate()
+        //        .setDuration(400)
+        //        .alpha(1f);
+
 
         view.animate()
-                .setDuration(2000)
+                .setDuration(3000)
                 .setInterpolator(new BounceInterpolator())
-                .scaleX(1f);
-
-        view.animate()
-                .setDuration(2000)
-                .setInterpolator(new BounceInterpolator())
+                .scaleX(1f)
+                .alpha(1f)
                 .scaleY(1f).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -294,6 +306,8 @@ public class AnimWorker {
             public void onAnimationEnd(Animator animation) {
 
                 dismissSplash(root);
+
+                busWorker.post(new SplashDoneEvent());
             }
 
             @Override

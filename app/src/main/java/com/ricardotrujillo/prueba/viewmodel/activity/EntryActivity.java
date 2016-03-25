@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,6 +58,7 @@ public class EntryActivity extends AppCompatActivity
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
     private boolean isAnimatingAvatar = false;
+    int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,17 +74,29 @@ public class EntryActivity extends AppCompatActivity
 
         initTransition();
 
-        //measurementsWorker.setScreenOrientation(this);
-
         if (savedInstanceState == null) {
 
             if (getIntent().getExtras() != null) {
 
-                getEntry(getIntent().getExtras().getInt(Constants.POSITION));
+                position = getIntent().getExtras().getInt(Constants.POSITION);
 
-                if (entry != null && entry.paletteColor != 0) setUpBarColor(entry.paletteColor);
+                getEntry(position);
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        busWorker.register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        busWorker.unRegister(this);
     }
 
     @Override
@@ -98,9 +112,11 @@ public class EntryActivity extends AppCompatActivity
 
         if (savedInstanceState != null) {
 
-            getEntry(savedInstanceState.getInt(Constants.POSITION));
+            position = getIntent().getExtras().getInt(Constants.POSITION);
 
-            if (entry != null && entry.paletteColor != 0) setUpBarColor(entry.paletteColor);
+            getEntry(position);
+
+            //if (entry != null && entry.paletteColor != 0) setUpBarColor(entry.paletteColor);
         }
     }
 
@@ -304,6 +320,8 @@ public class EntryActivity extends AppCompatActivity
 
                             binding.ivFeedCenter.setImageBitmap(newBitmap);
                         }
+
+                        getPaletteColor(newBitmap);
                     }
 
                     @Override
@@ -311,6 +329,20 @@ public class EntryActivity extends AppCompatActivity
 
                     }
                 });
+    }
+
+    void getPaletteColor(Bitmap myBitmap) {
+
+        if (myBitmap != null && !myBitmap.isRecycled()) {
+
+            Palette.from(myBitmap).generate(new Palette.PaletteAsyncListener() {
+
+                public void onGenerated(Palette palette) {
+
+                    setUpBarColor(animWorker.getDarkColorDrawable(palette).getColor());
+                }
+            });
+        }
     }
 
     void inject() {

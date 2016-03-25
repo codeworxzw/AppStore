@@ -28,7 +28,7 @@ public class RoundedFrameLayout extends FrameLayout {
     Bitmap maskBitmap;
     DisplayMetrics metrics;
     private Paint paint, maskPaint;
-    //private float cornerRadius;
+    private float cornerRadius;
     private int radius = 0;
 
     public RoundedFrameLayout(Context context) {
@@ -62,7 +62,7 @@ public class RoundedFrameLayout extends FrameLayout {
             a.recycle();
         }
 
-        //metrics = context.getResources().getDisplayMetrics();
+        metrics = context.getResources().getDisplayMetrics();
         //cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CORNER_RADIUS, metrics);
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -76,15 +76,15 @@ public class RoundedFrameLayout extends FrameLayout {
     @Override
     public void draw(Canvas canvas) {
 
-        //cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) canvas.getWidth() * 0.05f, metrics);
+        float newShadowRadius = (float) radius / 100f;
+
+        cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) canvas.getWidth() * newShadowRadius / 2.9f, metrics);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
             if (radius > 0) {
 
-                float newShadowRadius = (float) radius / 100f;
-
-                setOutlineProvider(new CustomOutline(canvas.getWidth(), canvas.getHeight(), (float) canvas.getWidth() * (newShadowRadius)));
+                setOutlineProvider(new CustomOutline(canvas.getWidth(), canvas.getHeight(), (float) canvas.getWidth() * newShadowRadius));
 
             } else {
 
@@ -117,7 +117,7 @@ public class RoundedFrameLayout extends FrameLayout {
         float multipler = 2.2f;
 
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        canvas.drawRoundRect(new RectF(0, 0, width, height), radius*multipler, radius*multipler, paint);
+        canvas.drawRoundRect(new RectF(0, 0, width, height), cornerRadius, cornerRadius, paint);
 
         return mask;
     }

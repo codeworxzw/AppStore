@@ -142,8 +142,6 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
                                         storeManager.getStore().feed.entry.get(position).imageLoaded = true; //First insert animation
                                     }
 
-                                    storeManager.getStore().feed.entry.get(position).paletteColor = animWorker.getDarkColorDrawable(palette).getColor();
-
                                     holder.binding.ivContainer.setBackgroundDrawable(animWorker.getDarkColorDrawable(palette)); // min supported API is 14
 
                                     storeManager.addDrawables(position, animWorker.getDarkColorDrawable(palette));
