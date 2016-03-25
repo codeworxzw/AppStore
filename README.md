@@ -1,4 +1,4 @@
-# PruebaGrability
+# AppStore Demo
 
 For the project to work you need to create a new Run/Debug configuration for an Application:
 
