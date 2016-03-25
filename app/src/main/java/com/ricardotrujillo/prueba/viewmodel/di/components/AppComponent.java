@@ -28,7 +28,7 @@ public interface AppComponent {
 
     void inject(StoreRecyclerViewAdapter storeRecyclerViewAdapter);
 
-    void inject(EntryViewModel entryViewModel);
+    void inject(EntryViewModel entryViewModel); //a
 
     void inject(NetWorker netWorker);
 
