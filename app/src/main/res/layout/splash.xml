@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:visibility="visible">
 
-    <com.ricardotrujillo.prueba.view.RoundedFrameLayout
+    <com.ricardotrujillo.appstore.view.RoundedFrameLayout
         android:id="@+id/splashRoot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,6 +22,6 @@
             android:layout_centerInParent="true"
             android:src="@drawable/splash" />
 
-    </com.ricardotrujillo.prueba.view.RoundedFrameLayout>
+    </com.ricardotrujillo.appstore.view.RoundedFrameLayout>
 
 </RelativeLayout>

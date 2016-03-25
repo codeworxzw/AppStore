@@ -5,11 +5,11 @@
 
     <data>
 
-        <import type="com.ricardotrujillo.prueba.model.Store.Feed.Entry" />
+        <import type="com.ricardotrujillo.appstore.model.Store.Feed.Entry" />
 
         <variable
             name="click"
-            type="com.ricardotrujillo.prueba.viewmodel.adapter.StoreRecyclerViewAdapter.StoreClickHandler" />
+            type="com.ricardotrujillo.appstore.viewmodel.adapter.StoreRecyclerViewAdapter.StoreClickHandler" />
 
         <variable
             name="entry"
@@ -17,7 +17,7 @@
 
         <variable
             name="handlers"
-            type="com.ricardotrujillo.prueba.viewmodel.activity.EntryActivity" />
+            type="com.ricardotrujillo.appstore.viewmodel.activity.EntryActivity" />
     </data>
 
     <android.support.design.widget.CoordinatorLayout
@@ -194,7 +194,7 @@
 
         </android.support.v7.widget.Toolbar>
 
-        <com.ricardotrujillo.prueba.view.RoundedFrameLayout
+        <com.ricardotrujillo.appstore.view.RoundedFrameLayout
             xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/ivFeedCenterThumbContainer"
             android:layout_width="@dimen/image_width"
@@ -219,7 +219,7 @@
                 android:clickable="false"
                 android:src="@drawable/img_feed_center_1" />
 
-        </com.ricardotrujillo.prueba.view.RoundedFrameLayout>
+        </com.ricardotrujillo.appstore.view.RoundedFrameLayout>
 
     </android.support.design.widget.CoordinatorLayout>
 
