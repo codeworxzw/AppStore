@@ -142,37 +142,41 @@ public class AnimWorker {
             int initRadius = Math.max(cx, cy);
             int finalRadius = 0;
 
-            // create the animator for this view (the start radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, initRadius, finalRadius);
+            if (view.isAttachedToWindow()) {
 
-            // make the view visible and start the animation
-            view.setVisibility(View.VISIBLE);
-            anim.setDuration(Constants.REVEAL_ANIMATION_SPLASH);
-            anim.setInterpolator(new LinearInterpolator());
-            anim.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
+                // create the animator for this view (the start radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(view, cx, cy, initRadius, finalRadius);
 
-                }
+                // make the view visible and start the animation
+                view.setVisibility(View.VISIBLE);
+                anim.setDuration(Constants.REVEAL_ANIMATION_SPLASH);
+                anim.setInterpolator(new LinearInterpolator());
+                anim.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
+                    }
 
-                    view.setVisibility(View.GONE);
-                }
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
 
-                @Override
-                public void onAnimationCancel(Animator animation) {
+                        view.setVisibility(View.GONE);
+                    }
 
-                }
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
 
-                @Override
-                public void onAnimationRepeat(Animator animation) {
+                    }
 
-                }
-            });
-            anim.start();
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+
+                anim.start();
+            }
         }
     }
 

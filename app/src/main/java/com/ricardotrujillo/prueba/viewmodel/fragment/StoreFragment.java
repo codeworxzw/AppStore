@@ -19,24 +19,28 @@ import com.ricardotrujillo.prueba.model.Store;
 import com.ricardotrujillo.prueba.model.StoreManager;
 import com.ricardotrujillo.prueba.viewmodel.Constants;
 import com.ricardotrujillo.prueba.viewmodel.adapter.StoreRecyclerViewAdapter;
+import com.ricardotrujillo.prueba.viewmodel.comparator.IgnoreCaseComparator;
+import com.ricardotrujillo.prueba.viewmodel.comparator.NameComparator;
 import com.ricardotrujillo.prueba.viewmodel.event.FetchedStoreDataEvent;
 import com.ricardotrujillo.prueba.viewmodel.event.RecyclerCellEvent;
 import com.ricardotrujillo.prueba.viewmodel.event.SplashDoneEvent;
 import com.ricardotrujillo.prueba.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.LogWorker;
+import com.ricardotrujillo.prueba.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.NetWorker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.inject.Inject;
 
 public class StoreFragment extends Fragment {
 
     public static StoreRecyclerViewAdapter adapter;
-    protected final int SPAN_COUNT = Constants.SPAN_COUNT;
-    protected final String KEY_LAYOUT_MANAGER = Constants.LAYOUT_MANAGER;
-    private final int DATASET_COUNT = 15;
+    protected int SPAN_COUNT = Constants.SPAN_COUNT;
+    protected String KEY_LAYOUT_MANAGER = Constants.LAYOUT_MANAGER;
     protected LayoutManagerType mCurrentLayoutManagerType;
     protected RecyclerView.LayoutManager mLayoutManager;
 
@@ -48,6 +52,8 @@ public class StoreFragment extends Fragment {
     NetWorker netWorker;
     @Inject
     StoreManager storeManager;
+    @Inject
+    MeasurementsWorker measurementsWorker;
 
     StoreFragmentBinding binding;
 
@@ -96,39 +102,47 @@ public class StoreFragment extends Fragment {
     @Subscribe
     public void recievedMessage(RecyclerCellEvent event) {
 
-        filterBy(event.getString());
+        filterBy(event);
     }
 
-    public void filterBy(String query) {
+    public void filterBy(RecyclerCellEvent event) {
 
-        final ArrayList<Store.Feed.Entry> filteredModelList = filter(storeManager.getStore().feed.originalEntry, query);
+        final ArrayList<Store.Feed.Entry> filteredModelList = filter(storeManager.getStore().feed.originalEntry, event);
 
         animateTo(filteredModelList);
 
         binding.storeRecyclerView.scrollToPosition(0);
     }
 
-    private ArrayList<Store.Feed.Entry> filter(ArrayList<Store.Feed.Entry> entries, String query) {
+    private ArrayList<Store.Feed.Entry> filter(ArrayList<Store.Feed.Entry> entries, RecyclerCellEvent event) {
 
-        if (query.equals(getString(R.string.all_apps))) {
+        String query;
+
+        if (event.getString().equals(getString(R.string.all_apps))) {
 
             return entries;
 
         } else {
 
-            query = query.toLowerCase();
+            query = event.getString().toLowerCase();
 
             final ArrayList<Store.Feed.Entry> filteredModelList = new ArrayList<>();
 
             for (Store.Feed.Entry entry : entries) {
 
-                final String text = entry.category.attributes.label.toLowerCase();
+                final String text = event.getField().equals(getString(R.string.category)) ? entry.category.attributes.label.toLowerCase() : entry.name.label.toLowerCase();
 
                 if (text.contains(query)) {
 
                     filteredModelList.add(entry);
                 }
             }
+
+            //NameComparator icc = new NameComparator();
+
+            //java.util.Collections.sort(filteredModelList, icc);
+
+            //Collections.reverse(filteredModelList);
 
             return filteredModelList;
         }
@@ -240,7 +254,7 @@ public class StoreFragment extends Fragment {
 
         mLayoutManager = new LinearLayoutManager(getActivity());
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (measurementsWorker.isInPortraitMode()) {
 
             mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
 

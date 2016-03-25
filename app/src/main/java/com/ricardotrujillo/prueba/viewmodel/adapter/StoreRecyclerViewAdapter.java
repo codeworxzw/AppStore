@@ -48,6 +48,7 @@ import com.ricardotrujillo.prueba.viewmodel.interfaces.CustomCallback;
 import com.ricardotrujillo.prueba.viewmodel.worker.AnimWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.LogWorker;
+import com.ricardotrujillo.prueba.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.NetWorker;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
@@ -56,6 +57,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+
 /**
  * Created by Ricardo on 18/03/2016
  */
@@ -73,9 +75,13 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
     AnimWorker animWorker;
     @Inject
     StoreManager storeManager;
+    @Inject
+    MeasurementsWorker measurementsWorker;
+    @Inject
+    NetWorker networker;
 
     private boolean showLoadingView = false;
-
+    protected int SPAN_COUNT = Constants.SPAN_COUNT;
     private int lastPosition = -1;
 
     public StoreRecyclerViewAdapter(Activity act) {
@@ -195,24 +201,7 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
 
     void loadImage(ImageView view, final int position, final CustomCallback callback) {
 
-        Picasso.with(view.getContext())
-                .load(storeManager.getStore().feed.entry.get(position).image[2].label)
-                .networkPolicy(
-                        NetWorker.isConnected(activity) ?
-                                NetworkPolicy.NO_CACHE : NetworkPolicy.OFFLINE)
-                .noFade()
-                .into(view, new Callback() {
-                    @Override
-                    public void onSuccess() {
-
-                        callback.onSuccess();
-                    }
-
-                    @Override
-                    public void onError() {
-
-                    }
-                });
+        networker.PicassoLoadInto(view, storeManager.getStore().feed.entry.get(position).image[2].label, callback);
     }
 
     public void onClickButton(View view, BindingHolder holder) {
@@ -314,17 +303,29 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) binding.cardView.getLayoutParams();
 
-            if (position == storeManager.getStore().feed.entry.size() - 1) {
+            bottomMargin = animWorker.dpToPx(0);
 
-                bottomMargin = animWorker.dpToPx(8);
+            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
 
-                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+            if (measurementsWorker.isInPortraitMode()) {
+
+                if (position == storeManager.getStore().feed.entry.size() - 1) {
+
+                    bottomMargin = animWorker.dpToPx(8);
+
+                    params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+                }
 
             } else {
 
-                bottomMargin = animWorker.dpToPx(0);
+                int rows = (int) Math.ceil((double) storeManager.getStore().feed.entry.size() / SPAN_COUNT);
 
-                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+                if (position > SPAN_COUNT * (rows - 1) - 1) {
+
+                    bottomMargin = animWorker.dpToPx(8);
+
+                    params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+                }
             }
 
             binding.cardView.setLayoutParams(params);

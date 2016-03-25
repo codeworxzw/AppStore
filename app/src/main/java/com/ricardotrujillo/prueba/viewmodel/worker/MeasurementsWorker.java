@@ -10,18 +10,31 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.ricardotrujillo.prueba.App;
+
 import javax.inject.Inject;
 
 public class MeasurementsWorker {
+
+    App app;
 
     private static int screenWidth = 0;
     private static int screenHeight = 0;
     private Measurements measurements = new Measurements();
 
     @Inject
-    public MeasurementsWorker() {
+    public MeasurementsWorker(App app) {
 
+        this.app = app;
+
+        inject();
     }
+
+    void inject() {
+
+        app.getAppComponent().inject(this);
+    }
+
 
     public int getScreenHeight() {
 
@@ -59,6 +72,11 @@ public class MeasurementsWorker {
         }
 
         return screenWidth;
+    }
+
+    public boolean isInPortraitMode() {
+
+        return app.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
     public double isTablet(DisplayMetrics dm) {

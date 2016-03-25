@@ -53,9 +53,9 @@ public class WorkersModule {
 
     @Provides
     @AppScope
-    MeasurementsWorker provideMeasurementsWorker() {
+    MeasurementsWorker provideMeasurementsWorker(App app) {
 
-        return new MeasurementsWorker();
+        return new MeasurementsWorker(app);
     }
 
     @Provides

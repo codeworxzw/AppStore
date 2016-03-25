@@ -68,10 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
+                android:padding="8dp"
                 android:layout_below="@+id/ivContainer"
                 android:orientation="vertical"
                 android:transitionName="@string/entry_transition_name">
@@ -93,11 +90,6 @@
                     style="@style/StoreCardPrice"
                     android:layout_weight="1"
                     android:text="@{entry.category.attributes.label}" />
-
-                <TextView
-                    android:id="@+id/row_empty"
-                    style="@style/StoreCardPrice"
-                    android:layout_weight="1" />
 
             </LinearLayout>
 

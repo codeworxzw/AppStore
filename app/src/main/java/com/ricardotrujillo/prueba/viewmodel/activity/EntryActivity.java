@@ -25,6 +25,7 @@ import com.ricardotrujillo.prueba.model.StoreManager;
 import com.ricardotrujillo.prueba.viewmodel.Constants;
 import com.ricardotrujillo.prueba.viewmodel.event.FetchedStoreDataEvent;
 import com.ricardotrujillo.prueba.viewmodel.event.RequestStoreEvent;
+import com.ricardotrujillo.prueba.viewmodel.interfaces.CustomCallback;
 import com.ricardotrujillo.prueba.viewmodel.worker.AnimWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.LogWorker;
@@ -55,6 +56,9 @@ public class EntryActivity extends AppCompatActivity
     BusWorker busWorker;
     @Inject
     AnimWorker animWorker;
+    @Inject
+    NetWorker netWorker;
+
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
     private boolean isAnimatingAvatar = false;
@@ -287,48 +291,42 @@ public class EntryActivity extends AppCompatActivity
 
     public void loadEntry(final Activity activity, final ActivityEntryBinding binding, Store.Feed.Entry entry) {
 
-        Picasso.with(activity)
-                .load(entry.image[2].label)
-                .networkPolicy(
-                        NetWorker.isConnected(activity) ?
-                                NetworkPolicy.NO_CACHE : NetworkPolicy.OFFLINE)
-                .placeholder(R.drawable.img_feed_center_1)
-                .into(binding.ivFeedCenterThumb, new Callback() {
-                    @Override
-                    public void onSuccess() {
+        netWorker.PicassoLoadInto(binding.ivFeedCenterThumb, entry.image[2].label, new CustomCallback() {
+            @Override
+            public void onSuccess() {
 
-                        final Bitmap bitmap = ((BitmapDrawable) binding.ivFeedCenterThumb.getDrawable()).getBitmap();
+                final Bitmap bitmap = ((BitmapDrawable) binding.ivFeedCenterThumb.getDrawable()).getBitmap();
 
-                        Bitmap newBitmap = bitmap.copy(bitmap.getConfig(), bitmap.isMutable());
+                Bitmap newBitmap = bitmap.copy(bitmap.getConfig(), bitmap.isMutable());
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
 
-                            binding.ivFeedCenter.setImageBitmap(animWorker.blur(activity, newBitmap, 7f));
+                    binding.ivFeedCenter.setImageBitmap(animWorker.blur(activity, newBitmap, 7f));
 
-                            binding.ivFeedCenter.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                    binding.ivFeedCenter.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 
-                                @Override
-                                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                        @Override
+                        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
 
-                                    v.removeOnLayoutChangeListener(this);
+                            v.removeOnLayoutChangeListener(this);
 
-                                    animWorker.enterReveal(binding.ivFeedCenter);
-                                }
-                            });
-
-                        } else {
-
-                            binding.ivFeedCenter.setImageBitmap(newBitmap);
+                            animWorker.enterReveal(binding.ivFeedCenter);
                         }
+                    });
 
-                        getPaletteColor(newBitmap);
-                    }
+                } else {
 
-                    @Override
-                    public void onError() {
+                    binding.ivFeedCenter.setImageBitmap(newBitmap);
+                }
 
-                    }
-                });
+                getPaletteColor(newBitmap);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
     }
 
     void getPaletteColor(Bitmap myBitmap) {

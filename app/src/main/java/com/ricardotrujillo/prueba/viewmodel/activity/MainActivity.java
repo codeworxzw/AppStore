@@ -6,9 +6,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.transition.TransitionInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -37,7 +41,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     @Inject
     NetWorker netWorker;
@@ -94,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
         initCategoriesList();
 
         checkForNetwork();
+
+        setOrientation();
     }
 
     @Override
@@ -101,6 +107,20 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
 
         busWorker.unRegister(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        final MenuItem item = menu.findItem(R.id.action_search);
+
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+
+        searchView.setOnQueryTextListener(this);
+
+        return true;
     }
 
     void checkForNetwork() {
@@ -155,8 +175,17 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setTitle(getString(R.string.app_name));
+        if (getSupportActionBar() != null) {
+
+            if (storeManager.getFilter() != null) {
+
+                getSupportActionBar().setTitle(storeManager.getFilter() + " " + getString(R.string.apps));
+
+            } else {
+
+                getSupportActionBar().setTitle(getString(R.string.app_name));
+            }
+        }
 
         if (portrait) {
 
@@ -208,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void addDrawerItems() {
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, categories);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categories);
 
         binding.navList.setAdapter(adapter);
 
@@ -219,7 +248,9 @@ public class MainActivity extends AppCompatActivity {
                 if (binding.drawerLayout != null)
                     binding.drawerLayout.closeDrawer(GravityCompat.START);
 
-                busWorker.getBus().post(new RecyclerCellEvent(categories.get(position)));
+                storeManager.setFilter(categories.get(position));
+
+                busWorker.getBus().post(new RecyclerCellEvent(categories.get(position), getString(R.string.category)));
 
                 if (!categories.get(position).equals(getString(R.string.all_apps))) {
 
@@ -244,7 +275,6 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
             public void onDrawerOpened(View drawerView) {
-
                 super.onDrawerOpened(drawerView);
 
                 if (getSupportActionBar() != null)
@@ -254,11 +284,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             public void onDrawerClosed(View view) {
-
                 super.onDrawerClosed(view);
 
-                if (getSupportActionBar() != null && !clickedOnItem)
-                    getSupportActionBar().setTitle(getString(R.string.app_name));
+                if (getSupportActionBar() != null) {
+
+                    getSupportActionBar().setTitle(clickedOnItem ? storeManager.getFilter() + " " + getString(R.string.apps) : getString(R.string.app_name));
+                }
 
                 invalidateOptionsMenu();
             }
@@ -297,5 +328,20 @@ public class MainActivity extends AppCompatActivity {
     void inject() {
 
         ((App) getApplication()).getAppComponent().inject(this);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(getString(R.string.app_name));
+
+        busWorker.getBus().post(new RecyclerCellEvent(newText, getString(R.string.name)));
+
+        return false;
     }
 }

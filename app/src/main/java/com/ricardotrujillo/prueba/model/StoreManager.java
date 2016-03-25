@@ -11,8 +11,8 @@ public class StoreManager {
 
     HashMap<String, ColorDrawable> colorDrawables = new HashMap<>();
     private Store store;
-    //private ColorDrawable[] colorDrawables;
     private Drawable[] drawables;
+    private String filter;
 
     @Inject
     public StoreManager() {
@@ -38,6 +38,16 @@ public class StoreManager {
     public Store getStore() {
 
         return store;
+    }
+
+    public void setFilter(String filter) {
+
+        this.filter = filter;
+    }
+
+    public String getFilter() {
+
+        return filter;
     }
 
     public void addDrawables(int position, ColorDrawable colorDrawable) {

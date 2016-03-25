@@ -9,9 +9,11 @@ public interface CustomCallback {
     class EmptyCallback implements CustomCallback {
 
         @Override public void onSuccess() {
+
         }
 
         @Override public void onError() {
+
         }
     }
 }

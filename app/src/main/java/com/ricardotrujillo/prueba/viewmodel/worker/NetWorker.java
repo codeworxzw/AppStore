@@ -2,10 +2,16 @@ package com.ricardotrujillo.prueba.viewmodel.worker;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -15,12 +21,24 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.Target;
 import com.ricardotrujillo.prueba.App;
+import com.ricardotrujillo.prueba.R;
 import com.ricardotrujillo.prueba.viewmodel.Constants;
 import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusRequest;
 import com.ricardotrujillo.prueba.viewmodel.event.ConnectivityStatusResponse;
 import com.ricardotrujillo.prueba.viewmodel.event.FetchedStoreDataEvent;
+import com.ricardotrujillo.prueba.viewmodel.interfaces.CustomCallback;
 import com.squareup.otto.Subscribe;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -65,7 +83,7 @@ public class NetWorker {
         });
     }
 
-    public static boolean isConnected(Activity activity) {
+    public static boolean isConnected(Context activity) {
 
         ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -184,5 +202,47 @@ public class NetWorker {
 
             return activeNetworkInfo != null;
         }
+    }
+
+    public void GlideloadImageInto(ImageView view, String url, final CustomCallback callback) {
+
+        Glide.with(app)
+                .load(url)
+                .asBitmap()
+                .centerCrop()
+                .placeholder(R.drawable.img_feed_center_1)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(new BitmapImageViewTarget(view) {
+                    @Override
+                    public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                        super.onResourceReady(bitmap, anim);
+
+                        callback.onSuccess();
+                    }
+                });
+
+    }
+
+    public void PicassoLoadInto(ImageView view, String url, final CustomCallback callback) {
+
+        Picasso.with(app)
+                .load(url)
+                .networkPolicy(
+                        NetWorker.isConnected(app) ?
+                                NetworkPolicy.NO_CACHE : NetworkPolicy.OFFLINE)
+                .placeholder(R.drawable.img_feed_center_1)
+                .noFade()
+                .into(view, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                        callback.onSuccess();
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
     }
 }

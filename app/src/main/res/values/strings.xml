@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">App Store</string>
+
+    <string name="category">category</string>
     <string name="name">name</string>
 
     <string name="button">button</string>
@@ -34,6 +36,8 @@
     <string name="categories">Categories</string>
     <string name="all_apps">All Apps</string>
     <string name="apps">Apps</string>
-    <string name="no_connectivity">No hay conexión a internet!</string>
+    <string name="no_connectivity">No connectivity!</string>
+
+    <string name="action_search">Search</string>
 
 </resources>

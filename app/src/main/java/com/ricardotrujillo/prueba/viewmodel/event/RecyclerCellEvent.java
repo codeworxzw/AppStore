@@ -5,19 +5,12 @@ import android.view.View;
 public class RecyclerCellEvent {
 
     String string;
-    View view;
-    int position;
+    String field;
 
-    public RecyclerCellEvent(String string) {
-
-        this.string = string;
-    }
-
-    public RecyclerCellEvent(String string, View view, int position) {
+    public RecyclerCellEvent(String string, String field) {
 
         this.string = string;
-        this.view = view;
-        this.position = position;
+        this.field = field;
     }
 
     public String getString() {
@@ -25,13 +18,8 @@ public class RecyclerCellEvent {
         return string;
     }
 
-    public View getView() {
+    public String getField() {
 
-        return view;
-    }
-
-    public int getPosition() {
-
-        return position;
+        return field;
     }
 }

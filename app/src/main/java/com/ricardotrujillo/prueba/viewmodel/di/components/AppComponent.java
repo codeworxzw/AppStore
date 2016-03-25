@@ -11,6 +11,7 @@ import com.ricardotrujillo.prueba.viewmodel.di.modules.WorkersModule;
 import com.ricardotrujillo.prueba.viewmodel.di.scopes.AppScope;
 import com.ricardotrujillo.prueba.viewmodel.fragment.StoreFragment;
 import com.ricardotrujillo.prueba.viewmodel.worker.AnimWorker;
+import com.ricardotrujillo.prueba.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.prueba.viewmodel.worker.NetWorker;
 
 @AppScope
@@ -32,4 +33,6 @@ public interface AppComponent {
     void inject(NetWorker netWorker);
 
     void inject(AnimWorker animWorker);
+
+    void inject(MeasurementsWorker measurementsWorker);
 }
