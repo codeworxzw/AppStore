@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Prueba.iml" filepath="$PROJECT_DIR$/Prueba.iml" />
-      <module fileurl="file://$PROJECT_DIR$/PruebaGrability.iml" filepath="$PROJECT_DIR$/PruebaGrability.iml" />
-      <module fileurl="file://$PROJECT_DIR$/PruebaGrability2.iml" filepath="$PROJECT_DIR$/PruebaGrability2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AppStore.iml" filepath="$PROJECT_DIR$/AppStore.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/greendao-generator/greendao-generator.iml" filepath="$PROJECT_DIR$/greendao-generator/greendao-generator.iml" />
       <module fileurl="file://$PROJECT_DIR$/roundedframelayout/roundedframelayout.iml" filepath="$PROJECT_DIR$/roundedframelayout/roundedframelayout.iml" />
