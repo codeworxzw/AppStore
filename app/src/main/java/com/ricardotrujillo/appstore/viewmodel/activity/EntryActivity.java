@@ -116,6 +116,7 @@ public class EntryActivity extends AppCompatActivity
             position = getIntent().getExtras().getInt(Constants.POSITION);
 
             getEntry(position);
+            getEntry(position);
 
             //if (entry != null && entry.paletteColor != 0) setUpBarColor(entry.paletteColor);
         }
