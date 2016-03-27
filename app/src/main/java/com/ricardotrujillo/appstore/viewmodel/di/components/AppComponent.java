@@ -2,6 +2,7 @@ package com.ricardotrujillo.appstore.viewmodel.di.components;
 
 import com.ricardotrujillo.appstore.App;
 import com.ricardotrujillo.appstore.model.EntryViewModel;
+import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.activity.EntryActivity;
 import com.ricardotrujillo.appstore.viewmodel.activity.MainActivity;
 import com.ricardotrujillo.appstore.viewmodel.adapter.StoreRecyclerViewAdapter;
@@ -38,4 +39,6 @@ public interface AppComponent {
     void inject(MeasurementsWorker measurementsWorker);
 
     void inject(RxWorker rxWorker);
+
+    void inject(StoreManager storeManager);
 }

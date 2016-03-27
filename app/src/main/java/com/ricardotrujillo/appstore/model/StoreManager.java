@@ -3,20 +3,42 @@ package com.ricardotrujillo.appstore.model;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 
+import com.google.gson.Gson;
+import com.ricardotrujillo.appstore.App;
+import com.ricardotrujillo.appstore.viewmodel.Constants;
+import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
+import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
+
 import java.util.HashMap;
 
 import javax.inject.Inject;
 
 public class StoreManager {
 
+    App app;
+
     HashMap<String, ColorDrawable> colorDrawables = new HashMap<>();
+    @Inject
+    DbWorker dbWorker;
+    @Inject
+    BusWorker busWorker;
     private Store store;
     private Drawable[] drawables;
     private String filter;
+    private int position;
 
     @Inject
-    public StoreManager() {
+    public StoreManager(App app) {
 
+        this.app = app;
+
+        inject();
+    }
+
+    void inject() {
+
+        app.getAppComponent().inject(this);
     }
 
     public void addStore(Store store) {
@@ -63,5 +85,36 @@ public class StoreManager {
     public int getDrawablesSize() {
 
         return drawables.length;
+    }
+
+    public int getPosition() {
+
+        return position;
+    }
+
+    public void setPosition(int position) {
+
+        this.position = position;
+    }
+
+    public void nullStore() {
+
+        store = null;
+    }
+
+    public void initStore(String result) {
+
+        if (getStore() == null) {
+
+            Store store = new Gson().fromJson(result.replace(Constants.STRING_TO_ERASE, Constants.NEW_STRING), Store.class);
+
+            store.feed.fillOriginalEntry(store.feed.entry);
+
+            addStore(store);
+
+            dbWorker.saveObject(app.getApplicationContext(), store);
+
+            busWorker.getBus().post(new FetchedStoreDataEvent(getPosition())); //passed position
+        }
     }
 }

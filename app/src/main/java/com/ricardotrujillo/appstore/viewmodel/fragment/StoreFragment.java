@@ -57,7 +57,7 @@ public class StoreFragment extends Fragment {
 
     Action1<String> stringAction;
     Action1<Integer> integerArrayAction;
-    Action1<String> appsAction;
+    //Action1<String> appsAction;
 
     StoreFragmentBinding binding;
 
@@ -93,7 +93,7 @@ public class StoreFragment extends Fragment {
 
         rxWorker.subscribeToString(stringAction);
         rxWorker.subscribeToIntArray(integerArrayAction);
-        rxWorker.subscribeToApps(appsAction);
+        //rxWorker.subscribeToApps(appsAction);
     }
 
     void inject() {
@@ -105,13 +105,13 @@ public class StoreFragment extends Fragment {
 
         stringAction = rxWorker.getStringObserver();
         integerArrayAction = rxWorker.getIntegerArrayObserver();
-        appsAction = new Action1<String>() {
-            @Override
-            public void call(String s) {
-
-                logWorker.log("From Fragment: " + String.valueOf(s.length()));
-            }
-        };
+//        appsAction = new Action1<String>() {
+//            @Override
+//            public void call(String s) {
+//
+//                logWorker.log("From Fragment: " + String.valueOf(s.length()));
+//            }
+//        };
     }
 
     @Subscribe

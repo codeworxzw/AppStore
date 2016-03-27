@@ -31,10 +31,13 @@ import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxWorker;
 import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Callback;
 
 import javax.inject.Inject;
+
+import rx.functions.Action1;
 
 public class EntryActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener {
@@ -56,7 +59,10 @@ public class EntryActivity extends AppCompatActivity
     AnimWorker animWorker;
     @Inject
     NetWorker netWorker;
+    @Inject
+    RxWorker rxWorker;
     int position = -1;
+    Action1<String> appsAction;
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
     private boolean isAnimatingAvatar = false;
@@ -84,6 +90,8 @@ public class EntryActivity extends AppCompatActivity
                 getEntry(position);
             }
         }
+
+        initObserversAndSubscribe();
     }
 
     @Override
@@ -91,6 +99,8 @@ public class EntryActivity extends AppCompatActivity
         super.onResume();
 
         busWorker.register(this);
+
+        rxWorker.subscribeToApps(appsAction);
     }
 
     @Override
@@ -98,6 +108,8 @@ public class EntryActivity extends AppCompatActivity
         super.onStop();
 
         busWorker.unRegister(this);
+
+        rxWorker.unSubscribeFromApps();
     }
 
     @Override
@@ -147,6 +159,21 @@ public class EntryActivity extends AppCompatActivity
         handleAlphaOnTitle(percentage);
 
         handleToolbarTitleVisibility(percentage);
+    }
+
+    void initObserversAndSubscribe() {
+
+        appsAction = new Action1<String>() {
+            @Override
+            public void call(String result) {
+
+                logWorker.log("From Entry ACtivity: " + String.valueOf(result.length()));
+
+                storeManager.initStore(result);
+            }
+        };
+
+        rxWorker.subscribeToApps(appsAction);
     }
 
     void setupToolBar() {
@@ -224,6 +251,8 @@ public class EntryActivity extends AppCompatActivity
     }
 
     void getEntry(int position) {
+
+        storeManager.nullStore();
 
         if (storeManager.getStore() != null) {
 

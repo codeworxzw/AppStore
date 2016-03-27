@@ -13,6 +13,7 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
@@ -30,7 +31,6 @@ public class RxWorker {
     Observable<String> stringObservable;
     Observable<Integer> integerArrayObservable;
     Observable<String> appsObservable;
-
     Observable<String> fetchFreeApps = Observable.create(new Observable.OnSubscribe<String>() {
         @Override
         public void call(final Subscriber<? super String> subscriber) {
@@ -49,7 +49,6 @@ public class RxWorker {
             }
         }
     });
-
     Observable<String> fetchPaidApps = Observable.create(new Observable.OnSubscribe<String>() {
         @Override
         public void call(final Subscriber<? super String> subscriber) {
@@ -75,6 +74,45 @@ public class RxWorker {
         this.app = app;
 
         inject();
+    }
+
+    public void initObservables() {
+
+        initStringObservable(Observable.just("Hello"));
+
+        initIntegerObservable(Observable.from(new Integer[]{1, 2, 3, 4, 5, 6}) //rxWorker.initIntegerObservable(Observable.from(new Integer[]{1, 2, 3, 4, 5, 6}));
+                .skip(0)
+                .filter(new Func1<Integer, Boolean>() {
+                    @Override
+                    public Boolean call(Integer integer) {
+                        return integer % 2 != 0;
+                    }
+                })
+                .map(new Func1<Integer, Integer>() { // Input and Output are both Integer
+                    @Override
+                    public Integer call(Integer integer) {
+                        return integer * integer;
+                    }
+                }));
+
+        initAppsObservable(Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(final Subscriber<? super String> subscriber) {
+                try {
+                    netWorker.get(app, Constants.PAID_URL, new NetWorker.Listener() {
+
+                        @Override
+                        public void onDataRetrieved(String result) {
+
+                            subscriber.onNext(result); // Emit the contents of the FREE_URL
+                            subscriber.onCompleted(); // Nothing more to emit
+                        }
+                    });
+                } catch (Exception e) {
+                    subscriber.onError(e); // In case there are network errors
+                }
+            }
+        }));
     }
 
     void inject() {
@@ -112,7 +150,7 @@ public class RxWorker {
                     @Override
                     public void call(String s) {
 
-                        Log.d(app.getString(R.string.log_tag), String.valueOf(s.length()));
+                        Log.d(app.getString(R.string.log_tag), "pepe " + String.valueOf(s.length()));
                     }
                 });
     }
@@ -126,7 +164,7 @@ public class RxWorker {
                     @Override
                     public void call(String s) {
 
-                        Log.d(app.getString(R.string.log_tag), String.valueOf(s.length()));
+                        Log.d(app.getString(R.string.log_tag), "pipo " + String.valueOf(s.length()));
                     }
                 });
     }

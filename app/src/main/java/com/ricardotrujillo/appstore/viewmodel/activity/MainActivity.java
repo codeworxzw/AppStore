@@ -33,11 +33,14 @@ import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxWorker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+
+import rx.functions.Action1;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     BusWorker busWorker;
     @Inject
     AnimWorker animWorker;
+    @Inject
+    RxWorker rxWorker;
 
     ActivityMainBinding binding;
 
@@ -67,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     boolean clickedOnItem = false;
 
     Snackbar snackbar;
+
+    Action1<String> appsAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         addDrawerItems();
 
         shouldShowSplash();
+
+        initObserversAndSubscribe();
     }
 
     @Override
@@ -93,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onResume();
 
         busWorker.register(this);
+
+        rxWorker.subscribeToApps(appsAction);
 
         initCategoriesList();
 
@@ -106,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onStop();
 
         busWorker.unRegister(this);
+
+        rxWorker.unSubscribeFromApps();
     }
 
     @Override
@@ -120,6 +133,21 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         searchView.setOnQueryTextListener(this);
 
         return true;
+    }
+
+    void initObserversAndSubscribe() {
+
+        appsAction = new Action1<String>() {
+            @Override
+            public void call(String result) {
+
+                logWorker.log("From App: " + String.valueOf(result.length()));
+
+                storeManager.initStore(result);
+            }
+        };
+
+        rxWorker.subscribeToApps(appsAction);
     }
 
     void checkForNetwork() {
@@ -194,6 +222,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Subscribe
     public void recievedMessage(FetchedStoreDataEvent event) {
+
+        logWorker.log("MainActivity recievedMessage FetchedStoreDataEvent");
 
         initCategoriesList();
 
