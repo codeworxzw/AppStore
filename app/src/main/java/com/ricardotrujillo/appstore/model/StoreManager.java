@@ -50,7 +50,7 @@ public class StoreManager {
         this.filter = filter;
     }
 
-    public void addDrawables(int position, ColorDrawable colorDrawable) {
+    public void addColorDrawable(int position, ColorDrawable colorDrawable) {
 
         colorDrawables.put(store.feed.entry.get(position).name.label, colorDrawable);
     }

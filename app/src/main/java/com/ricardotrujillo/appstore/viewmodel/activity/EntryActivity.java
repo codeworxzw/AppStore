@@ -56,7 +56,7 @@ public class EntryActivity extends AppCompatActivity
     AnimWorker animWorker;
     @Inject
     NetWorker netWorker;
-    int position;
+    int position = -1;
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
     private boolean isAnimatingAvatar = false;
@@ -209,9 +209,9 @@ public class EntryActivity extends AppCompatActivity
 
     void setUpBarColor(int color) {
 
-        binding.toolbar.setBackgroundColor(animWorker.alterColor(color, 0.9f));
+        binding.toolbar.setBackgroundColor(color);
 
-        binding.framelayoutTitle.setBackgroundColor(animWorker.alterColor(color, 0.9f));
+        binding.framelayoutTitle.setBackgroundColor(color);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
@@ -219,7 +219,7 @@ public class EntryActivity extends AppCompatActivity
 
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
-            window.setStatusBarColor(animWorker.alterColor(color, 0.7f));
+            window.setStatusBarColor(animWorker.alterColor(color, 0.8f));
         }
     }
 
@@ -286,7 +286,7 @@ public class EntryActivity extends AppCompatActivity
         }
     }
 
-    public void loadEntry(final Activity activity, final ActivityEntryBinding binding, Store.Feed.Entry entry) {
+    public void loadEntry(final Activity activity, final ActivityEntryBinding binding, final Store.Feed.Entry entry) {
 
         netWorker.PicassoLoadInto(binding.ivFeedCenterThumb, entry.image[2].label, new CustomCallback() {
             @Override
@@ -316,7 +316,14 @@ public class EntryActivity extends AppCompatActivity
                     binding.ivFeedCenter.setImageBitmap(newBitmap);
                 }
 
-                getPaletteColor(newBitmap);
+                if (position < 0) {
+
+                    getPaletteColor(newBitmap);
+
+                } else {
+
+                    setUpBarColor(storeManager.getColorDrawable(entry.name.label).getColor());
+                }
             }
 
             @Override

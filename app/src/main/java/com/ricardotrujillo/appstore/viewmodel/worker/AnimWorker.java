@@ -323,7 +323,7 @@ public class AnimWorker {
         });
     }
 
-    void dismissSplash(View root) {
+    public void dismissSplash(View root) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 

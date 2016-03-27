@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="schools.b1gdigital.com.schools.MainActivity">
 
@@ -73,24 +72,21 @@
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
             android:clickable="true"
-            android:orientation="vertical"
             android:visibility="visible">
 
-            <com.ricardotrujillo.appstore.view.RoundedFrameLayout
-                android:id="@+id/splashRoot"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:elevation="10dp"
-                custom:radius="21">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="25dp">
 
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
+                    android:layout_marginTop="60dp"
                     android:src="@drawable/splash" />
 
-            </com.ricardotrujillo.appstore.view.RoundedFrameLayout>
+            </RelativeLayout>
 
         </RelativeLayout>
 

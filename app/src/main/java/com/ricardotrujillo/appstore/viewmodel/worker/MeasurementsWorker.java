@@ -33,7 +33,6 @@ public class MeasurementsWorker {
         app.getAppComponent().inject(this);
     }
 
-
     public int getScreenHeight() {
 
         return measurements.getScreenHeight();

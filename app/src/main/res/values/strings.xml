@@ -6,6 +6,8 @@
 
     <string name="button">button</string>
 
+    <string name="log_tag">Test</string>
+
     <plurals name="likes_count">
         <item quantity="one">%d like</item>
         <item quantity="other">%d likes</item>

@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
         inject();
@@ -78,13 +79,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         measurementsWorker.setScreenHeight(this);
 
-        shouldShowSplash();
-
         setOrientation();
 
         initTransition();
 
         addDrawerItems();
+
+        shouldShowSplash();
     }
 
     @Override
@@ -142,18 +143,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
     }
 
-    void shouldShowSplash() {
-
-        if (storeManager.getStore() == null) {
-
-            animWorker.animateSlash(binding.splashRoot, binding.splashRootRelative);
-
-        } else {
-
-            binding.splashRootRelative.setVisibility(View.GONE);
-        }
-    }
-
     void setOrientation() {
 
         if (measurementsWorker.setScreenOrientation(this)) {
@@ -207,6 +196,21 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public void recievedMessage(FetchedStoreDataEvent event) {
 
         initCategoriesList();
+
+        dismissShowSplash();
+    }
+
+    void dismissShowSplash() {
+
+        animWorker.dismissSplash(binding.splashRootRelative);
+    }
+
+    void shouldShowSplash() {
+
+        if (storeManager.getStore() != null) {
+
+            binding.splashRootRelative.setVisibility(View.GONE);
+        }
     }
 
     void initCategoriesList() {
@@ -229,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         } else {
 
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();//
         }
     }
 
@@ -336,7 +340,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public boolean onQueryTextChange(String newText) {
 
-        if (getSupportActionBar() != null) getSupportActionBar().setTitle(getString(R.string.app_name));
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(getString(R.string.app_name));
 
         busWorker.getBus().post(new RecyclerCellEvent(newText, getString(R.string.name)));
 

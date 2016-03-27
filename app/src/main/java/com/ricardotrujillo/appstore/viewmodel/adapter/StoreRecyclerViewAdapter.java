@@ -142,7 +142,7 @@ public class StoreRecyclerViewAdapter extends RecyclerView.Adapter<StoreRecycler
 
                                     holder.binding.ivContainer.setBackgroundDrawable(animWorker.getDarkColorDrawable(palette)); // min supported API is 14
 
-                                    storeManager.addDrawables(position, animWorker.getDarkColorDrawable(palette));
+                                    storeManager.addColorDrawable(position, animWorker.getDarkColorDrawable(palette));
                                 }
                             }
                         });

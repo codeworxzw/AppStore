@@ -14,14 +14,16 @@
         android:theme="@style/AppTheme">
         <activity
             android:name="com.ricardotrujillo.appstore.viewmodel.activity.MainActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.ricardotrujillo.appstore.viewmodel.activity.EntryActivity"></activity>
+        <activity
+            android:name="com.ricardotrujillo.appstore.viewmodel.activity.EntryActivity"
+            android:theme="@style/AppTheme.TransparentActivity" />
     </application>
 
 </manifest>

@@ -13,6 +13,7 @@ import com.ricardotrujillo.appstore.viewmodel.fragment.StoreFragment;
 import com.ricardotrujillo.appstore.viewmodel.worker.AnimWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxWorker;
 
 @AppScope
 @dagger.Component(modules = {AppModule.class, StoreModule.class, WorkersModule.class})
@@ -35,4 +36,6 @@ public interface AppComponent {
     void inject(AnimWorker animWorker);
 
     void inject(MeasurementsWorker measurementsWorker);
+
+    void inject(RxWorker rxWorker);
 }
