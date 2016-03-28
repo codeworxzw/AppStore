@@ -74,7 +74,7 @@ public class NetWorker {
             @Override
             public void onResult(boolean status) {
 
-                busWorker.post(new ConnectivityStatusResponse(status, event.getPosition()));
+                busWorker.post(new ConnectivityStatusResponse(status));
             }
         });
     }

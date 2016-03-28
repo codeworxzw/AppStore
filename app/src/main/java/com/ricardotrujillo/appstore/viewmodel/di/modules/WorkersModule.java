@@ -8,7 +8,6 @@ import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
-import com.ricardotrujillo.appstore.viewmodel.worker.RxWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.SharedPreferencesWorker;
 
 import dagger.Module;
@@ -64,12 +63,5 @@ public class WorkersModule {
     AnimWorker provideAnimWorker(App app) {
 
         return new AnimWorker(app);
-    }
-
-    @Provides
-    @AppScope
-    RxWorker provideRxWorker(App app) {
-
-        return new RxWorker(app);
     }
 }

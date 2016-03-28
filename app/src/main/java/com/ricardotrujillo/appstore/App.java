@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.ricardotrujillo.appstore.model.Store;
 import com.ricardotrujillo.appstore.model.StoreManager;
+import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.di.components.AppComponent;
 import com.ricardotrujillo.appstore.viewmodel.di.components.DaggerAppComponent;
 import com.ricardotrujillo.appstore.viewmodel.di.modules.AppModule;
@@ -17,7 +18,6 @@ import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
-import com.ricardotrujillo.appstore.viewmodel.worker.RxWorker;
 import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
@@ -37,8 +37,6 @@ public class App extends Application {
     BusWorker busWorker;
     @Inject
     LogWorker logWorker;
-    @Inject
-    RxWorker rxWorker;
 
     private AppComponent appComponent;
 
@@ -64,46 +62,44 @@ public class App extends Application {
 
         busWorker.register(this);
 
-        rxWorker.initObservables();
-
-        checkForLoadedData(0);
+        checkForLoadedData();
     }
 
     @Subscribe
     public void recievedMessage(RequestStoreEvent event) {
 
-        checkForLoadedData(event.getPosition());
+        checkForLoadedData();
     }
 
-    void checkForLoadedData(int position) {
+    void checkForLoadedData() {
 
         if (storeManager.getStore() == null) {
 
-            busWorker.post(new ConnectivityStatusRequest(position));
+            busWorker.post(new ConnectivityStatusRequest());
 
         } else {
 
-            busWorker.post(new FetchedStoreDataEvent(position));
+            busWorker.post(new FetchedStoreDataEvent());
         }
     }
 
     @Subscribe
     public void recievedMessage(ConnectivityStatusResponse e) {
 
-        if (e.getPostion() >= 0) {
+        if (storeManager.getStore() == null) {
 
             if (e.isConnected()) {
 
-                getData(e.getPostion());
+                getData(Constants.FREE_URL);
 
             } else {
 
-                getSavedData(e.getPostion());
+                getSavedData();
             }
         }
     }
 
-    void getSavedData(int position) {
+    void getSavedData() {
 
         Store store = (Store) dbWorker.getObject(this);
 
@@ -111,36 +107,22 @@ public class App extends Application {
 
             storeManager.addStore(store);
 
-            busWorker.getBus().post(new FetchedStoreDataEvent(position));
+            busWorker.getBus().post(new FetchedStoreDataEvent());
         }
     }
 
-    void getData(final int position) {
+    void getData(String url) {
 
         logWorker.log("getData");
 
-        storeManager.setPosition(position);
+        netWorker.get(this, url, new NetWorker.Listener() {
 
-        rxWorker.fetchFreeApps();
+            @Override
+            public void onDataRetrieved(String result) {
 
-        //rxWorker.fetchPaidApps();
-
-//        netWorker.get(this, url, new NetWorker.Listener() {
-//
-//            @Override
-//            public void onDataRetrieved(String result) {
-//
-//                Store store = new Gson().fromJson(result.replace(Constants.STRING_TO_ERASE, Constants.NEW_STRING), Store.class);
-//
-//                store.feed.fillOriginalEntry(store.feed.entry);
-//
-//                storeManager.addStore(store);
-//
-//                dbWorker.saveObject(getApplicationContext(), store);
-//
-//                busWorker.getBus().post(new FetchedStoreDataEvent(position));
-//            }
-//        });
+                storeManager.initStore(result);
+            }
+        });
     }
 
     public AppComponent getAppComponent() {

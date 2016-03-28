@@ -114,7 +114,7 @@ public class StoreManager {
 
             dbWorker.saveObject(app.getApplicationContext(), store);
 
-            busWorker.getBus().post(new FetchedStoreDataEvent(getPosition())); //passed position
+            busWorker.getBus().post(new FetchedStoreDataEvent()); //passed position
         }
     }
 }

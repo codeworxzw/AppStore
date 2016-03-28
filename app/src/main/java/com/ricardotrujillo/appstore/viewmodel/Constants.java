@@ -24,4 +24,5 @@ public class Constants {
     final public static String NEW_STRING = "";
     final public static String STORE_ID = "storeId";
     final public static String POSITION = "position";
+    final public static String REVEALED_IMAGE = "revealedImage";
 }

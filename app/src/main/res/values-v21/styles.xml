@@ -22,8 +22,8 @@
     </style>
 
     <style name="AppTheme.TransparentActivity">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowIsTranslucent">false</item>
     </style>
 
     <style name="AppTheme.TransparentActivity.FullScreen">

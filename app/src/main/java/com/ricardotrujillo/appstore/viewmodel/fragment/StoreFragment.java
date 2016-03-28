@@ -25,14 +25,11 @@ import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
-import com.ricardotrujillo.appstore.viewmodel.worker.RxWorker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
-
-import rx.functions.Action1;
 
 public class StoreFragment extends Fragment {
 
@@ -52,12 +49,6 @@ public class StoreFragment extends Fragment {
     StoreManager storeManager;
     @Inject
     MeasurementsWorker measurementsWorker;
-    @Inject
-    RxWorker rxWorker;
-
-    Action1<String> stringAction;
-    Action1<Integer> integerArrayAction;
-    //Action1<String> appsAction;
 
     StoreFragmentBinding binding;
 
@@ -70,8 +61,6 @@ public class StoreFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         inject();
-
-        initObservers();
     }
 
     @Override
@@ -79,10 +68,6 @@ public class StoreFragment extends Fragment {
         super.onPause();
 
         busWorker.unRegister(this);
-
-        rxWorker.unSubscribeFromString();
-        rxWorker.unSubscribeFromInteger();
-        rxWorker.unSubscribeFromApps();
     }
 
     @Override
@@ -90,28 +75,11 @@ public class StoreFragment extends Fragment {
         super.onResume();
 
         busWorker.register(this);
-
-        rxWorker.subscribeToString(stringAction);
-        rxWorker.subscribeToIntArray(integerArrayAction);
-        //rxWorker.subscribeToApps(appsAction);
     }
 
     void inject() {
 
         ((App) getActivity().getApplication()).getAppComponent().inject(this);
-    }
-
-    void initObservers() {
-
-        stringAction = rxWorker.getStringObserver();
-        integerArrayAction = rxWorker.getIntegerArrayObserver();
-//        appsAction = new Action1<String>() {
-//            @Override
-//            public void call(String s) {
-//
-//                logWorker.log("From Fragment: " + String.valueOf(s.length()));
-//            }
-//        };
     }
 
     @Subscribe

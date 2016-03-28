@@ -31,13 +31,10 @@ import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
-import com.ricardotrujillo.appstore.viewmodel.worker.RxWorker;
 import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Callback;
 
 import javax.inject.Inject;
-
-import rx.functions.Action1;
 
 public class EntryActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener {
@@ -59,13 +56,12 @@ public class EntryActivity extends AppCompatActivity
     AnimWorker animWorker;
     @Inject
     NetWorker netWorker;
-    @Inject
-    RxWorker rxWorker;
+
     int position = -1;
-    Action1<String> appsAction;
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
     private boolean isAnimatingAvatar = false;
+    private boolean revealedImage = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,11 +83,9 @@ public class EntryActivity extends AppCompatActivity
 
                 position = getIntent().getExtras().getInt(Constants.POSITION);
 
-                getEntry(position);
+                getEntry();
             }
         }
-
-        initObserversAndSubscribe();
     }
 
     @Override
@@ -99,8 +93,6 @@ public class EntryActivity extends AppCompatActivity
         super.onResume();
 
         busWorker.register(this);
-
-        rxWorker.subscribeToApps(appsAction);
     }
 
     @Override
@@ -108,8 +100,6 @@ public class EntryActivity extends AppCompatActivity
         super.onStop();
 
         busWorker.unRegister(this);
-
-        rxWorker.unSubscribeFromApps();
     }
 
     @Override
@@ -117,6 +107,7 @@ public class EntryActivity extends AppCompatActivity
         super.onSaveInstanceState(savedInstanceState);
 
         savedInstanceState.putInt(Constants.POSITION, getIntent().getExtras().getInt(Constants.POSITION));
+        savedInstanceState.putBoolean(Constants.REVEALED_IMAGE, revealedImage);
     }
 
     @Override
@@ -125,11 +116,10 @@ public class EntryActivity extends AppCompatActivity
 
         if (savedInstanceState != null) {
 
-            position = getIntent().getExtras().getInt(Constants.POSITION);
+            position = savedInstanceState.getInt(Constants.POSITION);
+            revealedImage = savedInstanceState.getBoolean(Constants.REVEALED_IMAGE);
 
-            getEntry(position);
-
-            //if (entry != null && entry.paletteColor != 0) setUpBarColor(entry.paletteColor);
+            getEntry();
         }
     }
 
@@ -159,21 +149,6 @@ public class EntryActivity extends AppCompatActivity
         handleAlphaOnTitle(percentage);
 
         handleToolbarTitleVisibility(percentage);
-    }
-
-    void initObserversAndSubscribe() {
-
-        appsAction = new Action1<String>() {
-            @Override
-            public void call(String result) {
-
-                logWorker.log("From Entry ACtivity: " + String.valueOf(result.length()));
-
-                storeManager.initStore(result);
-            }
-        };
-
-        rxWorker.subscribeToApps(appsAction);
     }
 
     void setupToolBar() {
@@ -250,9 +225,7 @@ public class EntryActivity extends AppCompatActivity
         }
     }
 
-    void getEntry(int position) {
-
-        storeManager.nullStore();
+    void getEntry() {
 
         if (storeManager.getStore() != null) {
 
@@ -304,7 +277,7 @@ public class EntryActivity extends AppCompatActivity
     @Subscribe
     public void recievedMessage(FetchedStoreDataEvent event) {
 
-        getEntry(event.getPosition());
+        getEntry();
     }
 
     void initTransition() {
@@ -336,7 +309,12 @@ public class EntryActivity extends AppCompatActivity
 
                             v.removeOnLayoutChangeListener(this);
 
-                            animWorker.enterReveal(binding.ivFeedCenter);
+                            if (!revealedImage) {
+
+                                revealedImage = true;
+
+                                animWorker.enterReveal(binding.ivFeedCenter);
+                            }
                         }
                     });
 
