@@ -14,6 +14,7 @@ public class StoreModule {
     @AppScope
     StoreManager provideStoreManager(App app) {
 
+        //return new StoreManager(app);
         return new StoreManager(app);
     }
 }
