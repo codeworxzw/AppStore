@@ -2,7 +2,6 @@ package com.ricardotrujillo.appstore;
 
 import android.app.Application;
 
-import com.ricardotrujillo.appstore.model.Store;
 import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.di.components.AppComponent;
@@ -62,7 +61,7 @@ public class App extends Application {
 
         busWorker.register(this);
 
-        checkForLoadedData();
+        //checkForLoadedData();
     }
 
     @Subscribe
@@ -86,6 +85,8 @@ public class App extends Application {
     @Subscribe
     public void recievedMessage(ConnectivityStatusResponse e) {
 
+        logWorker.log("ConnectivityStatusResponse 1");
+
         if (storeManager.getStore() == null) {
 
             if (e.isConnected()) {
@@ -94,6 +95,8 @@ public class App extends Application {
 
             } else {
 
+                logWorker.log("ConnectivityStatusResponse 2");
+
                 getSavedData();
             }
         }
@@ -101,13 +104,15 @@ public class App extends Application {
 
     void getSavedData() {
 
-        Store store = (Store) dbWorker.getObject(this);
+        logWorker.log("getSavedData 1");
 
-        if (store != null) {
+        String storeString = (String) dbWorker.getObject(this);
 
-            storeManager.addStore(store);
+        if (storeString != null) {
 
-            busWorker.getBus().post(new FetchedStoreDataEvent());
+            logWorker.log("getSavedData 2");
+
+            storeManager.initStore(storeString, false);
         }
     }
 
@@ -118,9 +123,11 @@ public class App extends Application {
         netWorker.get(this, url, new NetWorker.Listener() {
 
             @Override
-            public void onDataRetrieved(String result) {
+            public void onDataRetrieved(String storeString) {
 
-                storeManager.initStore(result);
+                logWorker.log("getData 2");
+
+                storeManager.initStore(storeString, true);
             }
         });
     }

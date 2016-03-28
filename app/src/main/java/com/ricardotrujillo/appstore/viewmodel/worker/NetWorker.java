@@ -166,6 +166,7 @@ public class NetWorker {
                     @Override
                     public void onError() {
 
+                        callback.onSuccess();
                     }
                 });
     }

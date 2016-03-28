@@ -27,6 +27,7 @@ import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusResponse;
 import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
 import com.ricardotrujillo.appstore.viewmodel.event.RecyclerCellEvent;
+import com.ricardotrujillo.appstore.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.AnimWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
@@ -87,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         addDrawerItems();
 
         shouldShowSplash();
+
+        busWorker.getBus().post(new RequestStoreEvent());
     }
 
     @Override
@@ -195,9 +198,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Subscribe
     public void recievedMessage(FetchedStoreDataEvent event) {
 
+        logWorker.log("recievedMessage FetchedStoreDataEvent 1");
+
         initCategoriesList();
 
         if (!dismissedSplash) {
+
+            logWorker.log("recievedMessage FetchedStoreDataEvent 2");
 
             dismissedSplash = true;
 

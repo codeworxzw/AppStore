@@ -63,6 +63,8 @@ public class EntryActivity extends AppCompatActivity
     private boolean isAnimatingAvatar = false;
     private boolean revealedImage = false;
 
+    boolean shouldAnimateSharedView = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,11 +126,32 @@ public class EntryActivity extends AppCompatActivity
     }
 
     @Override
+    public void onBackPressed() {
+
+        if (shouldAnimateSharedView) {
+
+            supportFinishAfterTransition();
+
+        } else {
+
+            finish();
+        }
+        super.onBackPressed();  // optional depending on your needs
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
 
         if (menuItem.getItemId() == android.R.id.home) {
 
-            supportFinishAfterTransition();
+            if (shouldAnimateSharedView) {
+
+                supportFinishAfterTransition();
+
+            } else {
+
+                finish();
+            }
         }
         return super.onOptionsItemSelected(menuItem);
     }
@@ -270,12 +293,22 @@ public class EntryActivity extends AppCompatActivity
 
         } else {
 
-            busWorker.getBus().post(new RequestStoreEvent(position));
+            binding.ivFeedCenterThumbContainer.setVisibility(View.INVISIBLE);
+
+            binding.splashRootRelative.setVisibility(View.VISIBLE);
+
+            shouldAnimateSharedView = false;
+
+            busWorker.getBus().post(new RequestStoreEvent());
         }
     }
 
     @Subscribe
     public void recievedMessage(FetchedStoreDataEvent event) {
+
+        binding.ivFeedCenterThumbContainer.setVisibility(View.VISIBLE);
+
+        animWorker.exitReveal(binding.splashRootRelative);
 
         getEntry();
     }
@@ -329,7 +362,14 @@ public class EntryActivity extends AppCompatActivity
 
                 } else {
 
-                    setUpBarColor(storeManager.getColorDrawable(entry.name.label).getColor());
+                    if (storeManager.getColorDrawable(entry.name.label) != null) {
+
+                        setUpBarColor(storeManager.getColorDrawable(entry.name.label).getColor());
+
+                    } else {
+
+                        getPaletteColor(newBitmap);
+                    }
                 }
             }
 

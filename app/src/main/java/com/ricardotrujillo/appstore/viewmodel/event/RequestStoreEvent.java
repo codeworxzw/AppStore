@@ -8,11 +8,6 @@ public class RequestStoreEvent {
 
     }
 
-    public RequestStoreEvent(int position) {
-
-        this.position = position;
-    }
-
     public int getPosition() {
 
         return this.position;

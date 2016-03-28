@@ -9,6 +9,7 @@ import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 
 import java.util.HashMap;
 
@@ -23,6 +24,8 @@ public class StoreManager {
     DbWorker dbWorker;
     @Inject
     BusWorker busWorker;
+    @Inject
+    LogWorker logWorker;
     private Store store;
     private Drawable[] drawables;
     private String filter;
@@ -102,17 +105,21 @@ public class StoreManager {
         store = null;
     }
 
-    public void initStore(String result) {
+    public void initStore(String result, boolean online) {
+
+        logWorker.log("initStore 1");
 
         if (getStore() == null) {
+
+            logWorker.log("initStore 2 online: " + online);
 
             Store store = new Gson().fromJson(result.replace(Constants.STRING_TO_ERASE, Constants.NEW_STRING), Store.class);
 
             store.feed.fillOriginalEntry(store.feed.entry);
 
-            addStore(store);
+            if (online) dbWorker.saveObject(app.getApplicationContext(), store);
 
-            dbWorker.saveObject(app.getApplicationContext(), store);
+            addStore(store);
 
             busWorker.getBus().post(new FetchedStoreDataEvent()); //passed position
         }

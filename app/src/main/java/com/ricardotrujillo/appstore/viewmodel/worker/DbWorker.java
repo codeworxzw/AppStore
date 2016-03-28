@@ -50,7 +50,8 @@ public class DbWorker {
 
         if (storeList.size() > 0) {
 
-            return new Gson().fromJson(storeList.get(0).getObject(), com.ricardotrujillo.appstore.model.Store.class);
+            //return new Gson().fromJson(storeList.get(0).getObject(), com.ricardotrujillo.appstore.model.Store.class);
+            return storeList.get(0).getObject();
         }
 
         return null;
