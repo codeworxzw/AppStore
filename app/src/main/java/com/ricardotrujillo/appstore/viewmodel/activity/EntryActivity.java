@@ -23,7 +23,7 @@ import com.ricardotrujillo.appstore.databinding.ActivityEntryBinding;
 import com.ricardotrujillo.appstore.model.Store;
 import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
-import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
+import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.appstore.viewmodel.interfaces.CustomCallback;
 import com.ricardotrujillo.appstore.viewmodel.worker.AnimWorker;
@@ -58,12 +58,11 @@ public class EntryActivity extends AppCompatActivity
     NetWorker netWorker;
 
     int position = -1;
+    boolean shouldAnimateSharedView = true;
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
     private boolean isAnimatingAvatar = false;
     private boolean revealedImage = false;
-
-    boolean shouldAnimateSharedView = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -304,7 +303,7 @@ public class EntryActivity extends AppCompatActivity
     }
 
     @Subscribe
-    public void recievedMessage(FetchedStoreDataEvent event) {
+    public void recievedMessage(Events.FetchedStoreDataEvent even) {
 
         binding.ivFeedCenterThumbContainer.setVisibility(View.VISIBLE);
 

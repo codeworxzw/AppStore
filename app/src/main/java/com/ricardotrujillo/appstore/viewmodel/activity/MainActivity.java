@@ -25,7 +25,7 @@ import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.comparator.IgnoreCaseComparator;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusResponse;
-import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
+import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.event.RecyclerCellEvent;
 import com.ricardotrujillo.appstore.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.AnimWorker;
@@ -34,11 +34,16 @@ import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+
+import rx.functions.Action1;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     BusWorker busWorker;
     @Inject
     AnimWorker animWorker;
+    @Inject
+    RxBusWorker rxBusWorker;
 
     ActivityMainBinding binding;
 
@@ -64,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     ActionBarDrawerToggle drawerToggle;
 
     ArrayList<String> categories = new ArrayList<>();
+
+    CompositeSubscription rxSubscriptions;
 
     boolean clickedOnItem = false;
     boolean dismissedSplash = false;
@@ -98,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         busWorker.register(this);
 
+        setUpRxObservers();
+
         initCategoriesList();
 
         checkForNetwork();
@@ -110,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onStop();
 
         busWorker.unRegister(this);
+
+        rxSubscriptions.clear();
     }
 
     @Override
@@ -195,21 +208,33 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
     }
 
-    @Subscribe
-    public void recievedMessage(FetchedStoreDataEvent event) {
+    void setUpRxObservers() {
 
-        logWorker.log("recievedMessage FetchedStoreDataEvent 1");
+        rxSubscriptions = new CompositeSubscription();
 
-        initCategoriesList();
+        ConnectableObservable<Object> tapEventEmitter = rxBusWorker.toObserverable().publish();
 
-        if (!dismissedSplash) {
+        rxSubscriptions.add(tapEventEmitter.subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object event) {
 
-            logWorker.log("recievedMessage FetchedStoreDataEvent 2");
+                if (event instanceof Events.RxFetchedStoreDataEvent) {
 
-            dismissedSplash = true;
+                    logWorker.log("recieved Rx Message Activity");
 
-            dismissShowSplash();
-        }
+                    initCategoriesList();
+
+                    if (!dismissedSplash) {
+
+                        dismissedSplash = true;
+
+                        dismissShowSplash();
+                    }
+                }
+            }
+        }));
+
+        rxSubscriptions.add(tapEventEmitter.connect());
     }
 
     void dismissShowSplash() {

@@ -18,18 +18,22 @@ import com.ricardotrujillo.appstore.model.Store;
 import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.adapter.StoreRecyclerViewAdapter;
-import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
+import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.event.RecyclerCellEvent;
-import com.ricardotrujillo.appstore.viewmodel.event.SplashDoneEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+
+import rx.functions.Action1;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.CompositeSubscription;
 
 public class StoreFragment extends Fragment {
 
@@ -49,8 +53,12 @@ public class StoreFragment extends Fragment {
     StoreManager storeManager;
     @Inject
     MeasurementsWorker measurementsWorker;
+    @Inject
+    RxBusWorker rxBusWorker;
 
     StoreFragmentBinding binding;
+
+    CompositeSubscription rxSubscriptions;
 
     public StoreFragment() {
 
@@ -68,6 +76,8 @@ public class StoreFragment extends Fragment {
         super.onPause();
 
         busWorker.unRegister(this);
+
+        rxSubscriptions.clear();
     }
 
     @Override
@@ -75,6 +85,8 @@ public class StoreFragment extends Fragment {
         super.onResume();
 
         busWorker.register(this);
+
+        setUpRxObservers();
     }
 
     void inject() {
@@ -83,21 +95,31 @@ public class StoreFragment extends Fragment {
     }
 
     @Subscribe
-    public void recievedMessage(FetchedStoreDataEvent event) {
-
-        adapter.notifyDataSetChanged();
-    }
-
-    @Subscribe
-    public void recievedMessage(SplashDoneEvent event) {
-
-        adapter.notifyDataSetChanged();
-    }
-
-    @Subscribe
     public void recievedMessage(RecyclerCellEvent event) {
 
         filterBy(event);
+    }
+
+    void setUpRxObservers() {
+
+        rxSubscriptions = new CompositeSubscription();
+
+        ConnectableObservable<Object> tapEventEmitter = rxBusWorker.toObserverable().publish();
+
+        rxSubscriptions.add(tapEventEmitter.subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object event) {
+
+                if (event instanceof Events.RxFetchedStoreDataEvent) {
+
+                    logWorker.log("recieved Rx Message Fragment");
+
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        }));
+
+        rxSubscriptions.add(tapEventEmitter.connect());
     }
 
     public void filterBy(RecyclerCellEvent event) {

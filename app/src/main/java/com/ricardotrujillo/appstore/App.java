@@ -11,12 +11,13 @@ import com.ricardotrujillo.appstore.viewmodel.di.modules.StoreModule;
 import com.ricardotrujillo.appstore.viewmodel.di.modules.WorkersModule;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusResponse;
-import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
+import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
 import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
@@ -36,6 +37,8 @@ public class App extends Application {
     BusWorker busWorker;
     @Inject
     LogWorker logWorker;
+    @Inject
+    RxBusWorker rxBusWorker;
 
     private AppComponent appComponent;
 
@@ -78,14 +81,12 @@ public class App extends Application {
 
         } else {
 
-            busWorker.post(new FetchedStoreDataEvent());
+            busWorker.post(new Events.FetchedStoreDataEvent());
         }
     }
 
     @Subscribe
     public void recievedMessage(ConnectivityStatusResponse e) {
-
-        logWorker.log("ConnectivityStatusResponse 1");
 
         if (storeManager.getStore() == null) {
 
@@ -95,8 +96,6 @@ public class App extends Application {
 
             } else {
 
-                logWorker.log("ConnectivityStatusResponse 2");
-
                 getSavedData();
             }
         }
@@ -104,13 +103,9 @@ public class App extends Application {
 
     void getSavedData() {
 
-        logWorker.log("getSavedData 1");
-
         String storeString = (String) dbWorker.getObject(this);
 
         if (storeString != null) {
-
-            logWorker.log("getSavedData 2");
 
             storeManager.initStore(storeString, false);
         }
@@ -118,14 +113,10 @@ public class App extends Application {
 
     void getData(String url) {
 
-        logWorker.log("getData");
-
         netWorker.get(this, url, new NetWorker.Listener() {
 
             @Override
             public void onDataRetrieved(String storeString) {
-
-                logWorker.log("getData 2");
 
                 storeManager.initStore(storeString, true);
             }

@@ -6,10 +6,11 @@ import android.graphics.drawable.Drawable;
 import com.google.gson.Gson;
 import com.ricardotrujillo.appstore.App;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
-import com.ricardotrujillo.appstore.viewmodel.event.FetchedStoreDataEvent;
+import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
 
 import java.util.HashMap;
 
@@ -26,6 +27,8 @@ public class StoreManager {
     BusWorker busWorker;
     @Inject
     LogWorker logWorker;
+    @Inject
+    RxBusWorker rxBusWorker;
     private Store store;
     private Drawable[] drawables;
     private String filter;
@@ -107,11 +110,7 @@ public class StoreManager {
 
     public void initStore(String result, boolean online) {
 
-        logWorker.log("initStore 1");
-
         if (getStore() == null) {
-
-            logWorker.log("initStore 2 online: " + online);
 
             Store store = new Gson().fromJson(result.replace(Constants.STRING_TO_ERASE, Constants.NEW_STRING), Store.class);
 
@@ -121,7 +120,10 @@ public class StoreManager {
 
             addStore(store);
 
-            busWorker.getBus().post(new FetchedStoreDataEvent()); //passed position
+            if (rxBusWorker.hasObservers()) {
+
+                rxBusWorker.send(new Events.RxFetchedStoreDataEvent());
+            }
         }
     }
 }
