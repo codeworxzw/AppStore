@@ -2,20 +2,15 @@ package com.ricardotrujillo.appstore.viewmodel.event;
 
 public class ConnectivityStatusRequest {
 
-    int position;
+    int classType;
 
-    public ConnectivityStatusRequest() {
+    public ConnectivityStatusRequest(int classType) {
 
-        position = -1;
+        this.classType = classType;
     }
 
-    public ConnectivityStatusRequest(int position) {
+    public int getClassType() {
 
-        this.position = position;
-    }
-
-    public int getPosition() {
-
-        return position;
+        return this.classType;
     }
 }

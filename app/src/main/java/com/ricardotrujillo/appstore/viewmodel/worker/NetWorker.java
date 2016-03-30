@@ -26,7 +26,7 @@ import com.ricardotrujillo.appstore.App;
 import com.ricardotrujillo.appstore.R;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
-import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusResponse;
+import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.interfaces.CustomCallback;
 import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Callback;
@@ -43,17 +43,23 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func0;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.CompositeSubscription;
 
 public class NetWorker {
 
+    public boolean isNetworkAvailable;
     App app;
     @Inject
     BusWorker busWorker;
     @Inject
     LogWorker logWorker;
-
+    @Inject
+    RxBusWorker rxBusWorker;
     RequestQueue queue;
+    CompositeSubscription rxSubscriptions;
 
     @Inject
     public NetWorker(App app) {
@@ -65,6 +71,8 @@ public class NetWorker {
         busWorker.register(this);
 
         queue = Volley.newRequestQueue(this.app);
+
+        setUpRxObservers();
     }
 
     public static boolean isConnected(Context activity) {
@@ -87,9 +95,38 @@ public class NetWorker {
             @Override
             public void onResult(boolean status) {
 
-                busWorker.post(new ConnectivityStatusResponse(status));
+                rxBusWorker.send(new Events.ConnectivityStatusResponse(event.getClassType(), status));
             }
         });
+    }
+
+    void setUpRxObservers() {
+
+        rxSubscriptions = new CompositeSubscription();
+
+        ConnectableObservable<Object> tapEventEmitter = rxBusWorker.toObserverable().publish();
+
+        rxSubscriptions.add(tapEventEmitter.subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object event) {
+
+                if (event instanceof Events.ConnectivityStatusRequest) {
+
+                    logWorker.log("ConnectivityStatusRequest NetWorker");
+
+                    isNetworkAvailable(app, new NetWorker.ConnectionStatusListener() {
+
+                        @Override
+                        public void onResult(boolean status) {
+
+                            rxBusWorker.send(new Events.ConnectivityStatusResponse());
+                        }
+                    });
+                }
+            }
+        }));
+
+        rxSubscriptions.add(tapEventEmitter.connect());
     }
 
     void isNetworkAvailable(Context context, final ConnectionStatusListener listener) {
@@ -188,9 +225,8 @@ public class NetWorker {
 
         Picasso.with(app)
                 .load(url)
-                .networkPolicy(
-                        NetWorker.isConnected(app) ?
-                                NetworkPolicy.NO_CACHE : NetworkPolicy.OFFLINE)
+                .networkPolicy(isNetworkAvailable ?
+                        NetworkPolicy.NO_CACHE : NetworkPolicy.OFFLINE)
                 .placeholder(R.drawable.img_feed_center_1)
                 .noFade()
                 .into(view, new Callback() {

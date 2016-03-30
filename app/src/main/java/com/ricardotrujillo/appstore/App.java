@@ -11,15 +11,12 @@ import com.ricardotrujillo.appstore.viewmodel.di.modules.AppModule;
 import com.ricardotrujillo.appstore.viewmodel.di.modules.StoreModule;
 import com.ricardotrujillo.appstore.viewmodel.di.modules.WorkersModule;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
-import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusResponse;
 import com.ricardotrujillo.appstore.viewmodel.event.Events;
-import com.ricardotrujillo.appstore.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
-import com.squareup.otto.Subscribe;
 
 import org.json.JSONObject;
 
@@ -29,6 +26,8 @@ import javax.inject.Inject;
 
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -52,6 +51,7 @@ public class App extends Application {
 
     AppComponent appComponent;
 
+    CompositeSubscription rxSubscriptions = new CompositeSubscription();
     CompositeSubscription compositeSubscription = new CompositeSubscription();
 
     @Inject
@@ -76,20 +76,45 @@ public class App extends Application {
 
         busWorker.register(this);
 
-        //checkForLoadedData();
+        setUpRxObservers();
     }
 
-    @Subscribe
-    public void recievedMessage(RequestStoreEvent event) {
+    void setUpRxObservers() {
 
-        checkForLoadedData();
+        ConnectableObservable<Object> tapEventEmitter = rxBusWorker.toObserverable().publish();
+
+        rxSubscriptions.add(tapEventEmitter.subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object event) {
+
+                if (event instanceof Events.RequestStoreEvent) {
+
+                    logWorker.log("RequestStoreEvent");
+
+                    checkForLoadedData();
+
+                } else if (event instanceof Events.ConnectivityStatusResponse) {
+
+                    Events.ConnectivityStatusResponse e = (Events.ConnectivityStatusResponse) event;
+
+                    if (e.getClassType() == Constants.MAIN_ACTIVITY) {
+
+                        logWorker.log("ConnectivityStatusResponse App");
+
+                        loadData(e);
+                    }
+                }
+            }
+        }));
+
+        rxSubscriptions.add(tapEventEmitter.connect());
     }
 
     void checkForLoadedData() {
 
         if (storeManager.getStore() == null) {
 
-            busWorker.post(new ConnectivityStatusRequest());
+            busWorker.post(new ConnectivityStatusRequest(Constants.APP));
 
         } else {
 
@@ -97,35 +122,30 @@ public class App extends Application {
         }
     }
 
-    @Subscribe
-    public void recievedMessage(ConnectivityStatusResponse e) {
+    void loadData(Events.ConnectivityStatusResponse e) {
 
         if (storeManager.getStore() == null) {
 
             if (e.isConnected()) {
 
+                netWorker.isNetworkAvailable = true;
+
                 getData(Constants.FREE_URL);
 
             } else {
+
+                netWorker.isNetworkAvailable = false;
 
                 getSavedData();
             }
         }
     }
 
-    void getSavedData() {
-
-        String storeString = (String) dbWorker.getObject(this);
-
-        if (storeString != null) {
-
-            storeManager.initStore(storeString, false);
-        }
-    }
-
     void getData(String url) {
 
-        compositeSubscription.add(netWorker.newGetRouteData(url).subscribeOn(Schedulers.newThread())
+        logWorker.log("getData");
+
+        rxSubscriptions.add(netWorker.newGetRouteData(url).subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JSONObject>() {
                     @Override
@@ -151,6 +171,16 @@ public class App extends Application {
                         storeManager.initStore(jsonObject.toString(), true);
                     }
                 }));
+    }
+
+    void getSavedData() {
+
+        String storeString = (String) dbWorker.getObject(this);
+
+        if (storeString != null) {
+
+            storeManager.initStore(storeString, false);
+        }
     }
 
     public AppComponent getAppComponent() {

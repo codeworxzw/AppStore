@@ -22,12 +22,11 @@ import com.ricardotrujillo.appstore.R;
 import com.ricardotrujillo.appstore.databinding.ActivityMainBinding;
 import com.ricardotrujillo.appstore.model.Store;
 import com.ricardotrujillo.appstore.model.StoreManager;
+import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.comparator.IgnoreCaseComparator;
 import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
-import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusResponse;
 import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.event.RecyclerCellEvent;
-import com.ricardotrujillo.appstore.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.AnimWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
@@ -35,7 +34,6 @@ import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
-import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 
@@ -98,7 +96,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         shouldShowSplash();
 
-        busWorker.getBus().post(new RequestStoreEvent());
+        //busWorker.getBus().post(new RequestStoreEvent());
+
+        rxBusWorker.send(new Events.RequestStoreEvent());
     }
 
     @Override
@@ -141,23 +141,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     void checkForNetwork() {
 
-        busWorker.post(new ConnectivityStatusRequest());
-    }
-
-    @Subscribe
-    public void recievedMessage(ConnectivityStatusResponse e) {
-
-        if (!e.isConnected()) {
-
-            snackbar = Snackbar
-                    .make(binding.getRoot(), getString(R.string.no_connectivity), Snackbar.LENGTH_INDEFINITE);
-
-            snackbar.show();
-
-        } else {
-
-            if (snackbar != null) snackbar.dismiss();
-        }
+        busWorker.post(new ConnectivityStatusRequest(Constants.MAIN_ACTIVITY));
     }
 
     void setOrientation() {
@@ -220,21 +204,52 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                 if (event instanceof Events.RxFetchedStoreDataEvent) {
 
-                    logWorker.log("recieved Rx Message Activity");
+                    logWorker.log("RxFetchedStoreDataEvent MainActivity");
 
-                    initCategoriesList();
+                    initCategories();
 
-                    if (!dismissedSplash) {
+                } else if (event instanceof Events.ConnectivityStatusResponse) {
 
-                        dismissedSplash = true;
+                    Events.ConnectivityStatusResponse e = (Events.ConnectivityStatusResponse) event;
 
-                        dismissShowSplash();
+                    if (e.getClassType() == Constants.MAIN_ACTIVITY) {
+
+                        logWorker.log("ConnectivityStatusResponse MainActivity");
+
+                        showSnackBar((Events.ConnectivityStatusResponse) event);
                     }
                 }
             }
         }));
 
         rxSubscriptions.add(tapEventEmitter.connect());
+    }
+
+    void initCategories() {
+
+        initCategoriesList();
+
+        if (!dismissedSplash) {
+
+            dismissedSplash = true;
+
+            dismissShowSplash();
+        }
+    }
+
+    void showSnackBar(Events.ConnectivityStatusResponse e) {
+
+        if (!e.isConnected()) {
+
+            snackbar = Snackbar
+                    .make(binding.getRoot(), getString(R.string.no_connectivity), Snackbar.LENGTH_INDEFINITE);
+
+            snackbar.show();
+
+        } else {
+
+            if (snackbar != null) snackbar.dismiss();
+        }
     }
 
     void dismissShowSplash() {

@@ -112,7 +112,7 @@ public class StoreFragment extends Fragment {
 
                 if (event instanceof Events.RxFetchedStoreDataEvent) {
 
-                    logWorker.log("recieved Rx Message Fragment");
+                    logWorker.log("RxFetchedStoreDataEvent StoreFragment");
 
                     adapter.notifyDataSetChanged();
                 }
