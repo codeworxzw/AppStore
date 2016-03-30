@@ -14,6 +14,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
@@ -31,18 +33,27 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
+
+import rx.Observable;
+import rx.functions.Func0;
 
 public class NetWorker {
 
     App app;
     @Inject
     BusWorker busWorker;
-    private RequestQueue queue;
+    @Inject
+    LogWorker logWorker;
+
+    RequestQueue queue;
 
     @Inject
     public NetWorker(App app) {
@@ -52,6 +63,8 @@ public class NetWorker {
         inject();
 
         busWorker.register(this);
+
+        queue = Volley.newRequestQueue(this.app);
     }
 
     public static boolean isConnected(Context activity) {
@@ -91,9 +104,7 @@ public class NetWorker {
         }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public void get(final Context context, final String url, final Listener listener) {
-
-        queue = Volley.newRequestQueue(context);
+    public void get(final String url, final Listener listener) {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
@@ -111,7 +122,7 @@ public class NetWorker {
 
                 Log.d("Test", "onErrorResponse " + error.toString());
 
-                get(context, url, listener);
+                get(url, listener);
             }
         });
 
@@ -121,6 +132,32 @@ public class NetWorker {
         stringRequest.setTag(Constants.TAG);
 
         queue.add(stringRequest);
+    }
+
+    public Observable<JSONObject> newGetRouteData(final String url) {
+        return Observable.defer(new Func0<Observable<JSONObject>>() {
+            @Override
+            public Observable<JSONObject> call() {
+                try {
+
+                    return Observable.just(getRouteData(url));
+
+                } catch (InterruptedException | ExecutionException e) {
+
+                    logWorker.log("routes: " + e.getMessage());
+
+                    return Observable.error(e);
+                }
+            }
+        });
+    }
+
+    private JSONObject getRouteData(String url) throws ExecutionException, InterruptedException {
+        RequestFuture<JSONObject> future = RequestFuture.newFuture();
+        final Request.Priority priority = Request.Priority.IMMEDIATE;
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, url, future, future);
+        queue.add(req);
+        return future.get();
     }
 
     public void cancelAll() {

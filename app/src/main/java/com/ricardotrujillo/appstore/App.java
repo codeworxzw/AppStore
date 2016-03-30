@@ -2,6 +2,7 @@ package com.ricardotrujillo.appstore;
 
 import android.app.Application;
 
+import com.android.volley.VolleyError;
 import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.di.components.AppComponent;
@@ -20,7 +21,16 @@ import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
 import com.squareup.otto.Subscribe;
 
+import org.json.JSONObject;
+
+import java.nio.charset.Charset;
+
 import javax.inject.Inject;
+
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by Ricardo on 15/03/2016.
@@ -40,7 +50,9 @@ public class App extends Application {
     @Inject
     RxBusWorker rxBusWorker;
 
-    private AppComponent appComponent;
+    AppComponent appComponent;
+
+    CompositeSubscription compositeSubscription = new CompositeSubscription();
 
     @Inject
     public App() {
@@ -113,14 +125,32 @@ public class App extends Application {
 
     void getData(String url) {
 
-        netWorker.get(this, url, new NetWorker.Listener() {
+        compositeSubscription.add(netWorker.newGetRouteData(url).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<JSONObject>() {
+                    @Override
+                    public void onCompleted() {
 
-            @Override
-            public void onDataRetrieved(String storeString) {
+                        logWorker.log("onCompleted");
+                    }
 
-                storeManager.initStore(storeString, true);
-            }
-        });
+                    @Override
+                    public void onError(Throwable e) {
+
+                        VolleyError cause = (VolleyError) e.getCause();
+                        String s = new String(cause.networkResponse.data, Charset.forName("UTF-8"));
+
+                        logWorker.log("onError: " + s);
+                    }
+
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+
+                        logWorker.log("onNext: " + jsonObject.toString());
+
+                        storeManager.initStore(jsonObject.toString(), true);
+                    }
+                }));
     }
 
     public AppComponent getAppComponent() {
