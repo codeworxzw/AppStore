@@ -28,4 +28,6 @@ public class Constants {
     final public static String STORE_ID = "storeId";
     final public static String POSITION = "position";
     final public static String REVEALED_IMAGE = "revealedImage";
+
+    final public static boolean SHOULD_FETCH_STORE = true;
 }

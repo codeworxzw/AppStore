@@ -24,7 +24,6 @@ import com.ricardotrujillo.appstore.model.Store;
 import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.comparator.IgnoreCaseComparator;
-import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
 import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.event.RecyclerCellEvent;
 import com.ricardotrujillo.appstore.viewmodel.worker.AnimWorker;
@@ -141,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     void checkForNetwork() {
 
-        busWorker.post(new ConnectivityStatusRequest());
+        rxBusWorker.send(new Events.ConnectivityStatusRequest(Constants.MAIN_ACTIVITY));
     }
 
     void setOrientation() {

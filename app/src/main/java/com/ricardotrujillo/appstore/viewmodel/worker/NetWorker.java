@@ -25,10 +25,8 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.ricardotrujillo.appstore.App;
 import com.ricardotrujillo.appstore.R;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
-import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
 import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.interfaces.CustomCallback;
-import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -87,19 +85,6 @@ public class NetWorker {
         app.getAppComponent().inject(this);
     }
 
-    @Subscribe
-    public void recievedMessage(final ConnectivityStatusRequest event) {
-
-        isNetworkAvailable(app, new NetWorker.ConnectionStatusListener() {
-
-            @Override
-            public void onResult(boolean status) {
-
-                rxBusWorker.send(new Events.ConnectivityStatusResponse(event.getClassType(), status));
-            }
-        });
-    }
-
     void setUpRxObservers() {
 
         rxSubscriptions = new CompositeSubscription();
@@ -114,12 +99,14 @@ public class NetWorker {
 
                     logWorker.log("ConnectivityStatusRequest NetWorker");
 
+                    final Events.ConnectivityStatusRequest e = (Events.ConnectivityStatusRequest) event;
+
                     isNetworkAvailable(app, new NetWorker.ConnectionStatusListener() {
 
                         @Override
                         public void onResult(boolean status) {
 
-                            rxBusWorker.send(new Events.ConnectivityStatusResponse());
+                            rxBusWorker.send(new Events.ConnectivityStatusResponse(e.getClassType(), status));
                         }
                     });
 

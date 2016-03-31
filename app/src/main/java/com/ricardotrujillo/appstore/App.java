@@ -10,7 +10,6 @@ import com.ricardotrujillo.appstore.viewmodel.di.components.DaggerAppComponent;
 import com.ricardotrujillo.appstore.viewmodel.di.modules.AppModule;
 import com.ricardotrujillo.appstore.viewmodel.di.modules.StoreModule;
 import com.ricardotrujillo.appstore.viewmodel.di.modules.WorkersModule;
-import com.ricardotrujillo.appstore.viewmodel.event.ConnectivityStatusRequest;
 import com.ricardotrujillo.appstore.viewmodel.event.Events;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.DbWorker;
@@ -119,7 +118,7 @@ public class App extends Application {
 
             logWorker.log("checkForLoadedData 2");
 
-            busWorker.post(new ConnectivityStatusRequest(classType));
+            rxBusWorker.send(new Events.ConnectivityStatusRequest(classType));
 
         } else {
 
