@@ -110,6 +110,20 @@ public class NetWorker {
                         }
                     });
 
+                } else if (event instanceof Events.ConnectivityStatusRequest2) {
+
+                    logWorker.log("ConnectivityStatusRequest2 NetWorker");
+
+                    final Events.ConnectivityStatusRequest2 e = (Events.ConnectivityStatusRequest2) event;
+
+                    isNetworkAvailable(app, new NetWorker.ConnectionStatusListener() {
+
+                        @Override
+                        public void onResult(boolean status) {
+
+                            rxBusWorker.send(new Events.ConnectivityStatusResponse2(status));
+                        }
+                    });
                 }
             }
         }));

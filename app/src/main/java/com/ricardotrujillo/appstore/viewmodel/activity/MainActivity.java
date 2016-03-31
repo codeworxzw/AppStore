@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     void checkForNetwork() {
 
-        rxBusWorker.send(new Events.ConnectivityStatusRequest(Constants.MAIN_ACTIVITY));
+        rxBusWorker.send(new Events.ConnectivityStatusRequest2());
     }
 
     void setOrientation() {
@@ -207,16 +207,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                     initCategories();
 
-                } else if (event instanceof Events.ConnectivityStatusResponse) {
+                } else if (event instanceof Events.ConnectivityStatusResponse2) {
 
-                    Events.ConnectivityStatusResponse e = (Events.ConnectivityStatusResponse) event;
+                    logWorker.log("ConnectivityStatusResponse2 MainActivity");
 
-                    if (e.getClassType() == Constants.MAIN_ACTIVITY) {
-
-                        logWorker.log("ConnectivityStatusResponse MainActivity");
-
-                        showSnackBar((Events.ConnectivityStatusResponse) event);
-                    }
+                    showSnackBar((Events.ConnectivityStatusResponse2) event);
                 }
             }
         }));
@@ -236,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
     }
 
-    void showSnackBar(Events.ConnectivityStatusResponse e) {
+    void showSnackBar(Events.ConnectivityStatusResponse2 e) {
 
         if (!e.isConnected()) {
 

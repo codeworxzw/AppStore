@@ -28,8 +28,9 @@ public class Events {
         boolean status;
         int classType;
 
-        public ConnectivityStatusResponse() {
+        public ConnectivityStatusResponse(boolean status) {
 
+            this.status = status;
         }
 
         public ConnectivityStatusResponse(int classType, boolean status) {
@@ -49,6 +50,22 @@ public class Events {
         }
     }
 
+    public static class ConnectivityStatusResponse2 {
+
+        boolean status;
+        int classType;
+
+        public ConnectivityStatusResponse2(boolean status) {
+
+            this.status = status;
+        }
+
+        public boolean isConnected() {
+
+            return status;
+        }
+    }
+
     public static class ConnectivityStatusRequest {
 
         int classType;
@@ -62,5 +79,8 @@ public class Events {
 
             return this.classType;
         }
+    }
+
+    public static class ConnectivityStatusRequest2 {
     }
 }
