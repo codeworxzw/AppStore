@@ -3,6 +3,18 @@ package com.ricardotrujillo.appstore.viewmodel.event;
 public class Events {
 
     public static class RequestStoreEvent {
+
+        int classType;
+
+        public RequestStoreEvent(int classType) {
+
+            this.classType = classType;
+        }
+
+        public int getClassType() {
+
+            return this.classType;
+        }
     }
 
     public static class FetchedStoreDataEvent {

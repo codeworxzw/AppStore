@@ -24,17 +24,20 @@ import com.ricardotrujillo.appstore.model.Store;
 import com.ricardotrujillo.appstore.model.StoreManager;
 import com.ricardotrujillo.appstore.viewmodel.Constants;
 import com.ricardotrujillo.appstore.viewmodel.event.Events;
-import com.ricardotrujillo.appstore.viewmodel.event.RequestStoreEvent;
 import com.ricardotrujillo.appstore.viewmodel.interfaces.CustomCallback;
 import com.ricardotrujillo.appstore.viewmodel.worker.AnimWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.BusWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.LogWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.MeasurementsWorker;
 import com.ricardotrujillo.appstore.viewmodel.worker.NetWorker;
-import com.squareup.otto.Subscribe;
+import com.ricardotrujillo.appstore.viewmodel.worker.RxBusWorker;
 import com.squareup.picasso.Callback;
 
 import javax.inject.Inject;
+
+import rx.functions.Action1;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.CompositeSubscription;
 
 public class EntryActivity extends AppCompatActivity
         implements AppBarLayout.OnOffsetChangedListener {
@@ -56,9 +59,12 @@ public class EntryActivity extends AppCompatActivity
     AnimWorker animWorker;
     @Inject
     NetWorker netWorker;
+    @Inject
+    RxBusWorker rxBusWorker;
 
     int position = -1;
     boolean shouldAnimateSharedView = true;
+    CompositeSubscription rxSubscriptions;
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
     private boolean isAnimatingAvatar = false;
@@ -94,13 +100,17 @@ public class EntryActivity extends AppCompatActivity
         super.onResume();
 
         busWorker.register(this);
+
+        setUpRxObservers();
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
 
         busWorker.unRegister(this);
+
+        rxSubscriptions.clear();
     }
 
     @Override
@@ -135,7 +145,8 @@ public class EntryActivity extends AppCompatActivity
 
             finish();
         }
-        super.onBackPressed();  // optional depending on your needs
+
+        //super.onBackPressed();  // optional depending on your needs
     }
 
     @Override
@@ -152,6 +163,7 @@ public class EntryActivity extends AppCompatActivity
                 finish();
             }
         }
+
         return super.onOptionsItemSelected(menuItem);
     }
 
@@ -298,18 +310,34 @@ public class EntryActivity extends AppCompatActivity
 
             shouldAnimateSharedView = false;
 
-            busWorker.getBus().post(new RequestStoreEvent());
+            rxBusWorker.send(new Events.RequestStoreEvent(Constants.ENTRY_ACTIVITY));
         }
     }
 
-    @Subscribe
-    public void recievedMessage(Events.FetchedStoreDataEvent even) {
+    void setUpRxObservers() {
 
-        binding.ivFeedCenterThumbContainer.setVisibility(View.VISIBLE);
+        rxSubscriptions = new CompositeSubscription();
 
-        animWorker.exitReveal(binding.splashRootRelative);
+        ConnectableObservable<Object> tapEventEmitter = rxBusWorker.toObserverable().publish();
 
-        getEntry();
+        rxSubscriptions.add(tapEventEmitter.subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object event) {
+
+                if (event instanceof Events.RxFetchedStoreDataEvent) {
+
+                    logWorker.log("RxFetchedStoreDataEvent EntryActivity");
+
+                    binding.ivFeedCenterThumbContainer.setVisibility(View.VISIBLE);
+
+                    animWorker.exitReveal(binding.splashRootRelative);
+
+                    getEntry();
+                }
+            }
+        }));
+
+        rxSubscriptions.add(tapEventEmitter.connect());
     }
 
     void initTransition() {

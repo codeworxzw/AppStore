@@ -72,21 +72,21 @@ public class StoreFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-        busWorker.unRegister(this);
-
-        rxSubscriptions.clear();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
         busWorker.register(this);
 
         setUpRxObservers();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        busWorker.unRegister(this);
+
+        rxSubscriptions.clear();
     }
 
     void inject() {

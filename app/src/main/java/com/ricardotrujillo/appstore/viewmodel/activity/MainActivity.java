@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         //busWorker.getBus().post(new RequestStoreEvent());
 
-        rxBusWorker.send(new Events.RequestStoreEvent());
+        rxBusWorker.send(new Events.RequestStoreEvent(Constants.MAIN_ACTIVITY));
     }
 
     @Override
@@ -117,8 +117,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
 
         busWorker.unRegister(this);
 
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     void checkForNetwork() {
 
-        busWorker.post(new ConnectivityStatusRequest(Constants.MAIN_ACTIVITY));
+        busWorker.post(new ConnectivityStatusRequest());
     }
 
     void setOrientation() {

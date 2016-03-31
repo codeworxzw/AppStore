@@ -89,17 +89,20 @@ public class App extends Application {
 
                 if (event instanceof Events.RequestStoreEvent) {
 
-                    logWorker.log("RequestStoreEvent");
+                    Events.RequestStoreEvent e = (Events.RequestStoreEvent) event;
 
-                    checkForLoadedData();
+                    logWorker.log("RequestStoreEvent App: " + e.getClassType());
+
+                    checkForLoadedData(e.getClassType());
 
                 } else if (event instanceof Events.ConnectivityStatusResponse) {
 
                     Events.ConnectivityStatusResponse e = (Events.ConnectivityStatusResponse) event;
 
-                    if (e.getClassType() == Constants.MAIN_ACTIVITY) {
+                    logWorker.log("ConnectivityStatusResponse App: " + e.getClassType());
 
-                        logWorker.log("ConnectivityStatusResponse App");
+                    if (e.getClassType() == Constants.MAIN_ACTIVITY ||
+                            e.getClassType() == Constants.ENTRY_ACTIVITY) {
 
                         loadData(e);
                     }
@@ -110,13 +113,17 @@ public class App extends Application {
         rxSubscriptions.add(tapEventEmitter.connect());
     }
 
-    void checkForLoadedData() {
+    void checkForLoadedData(int classType) {
 
         if (storeManager.getStore() == null) {
 
-            busWorker.post(new ConnectivityStatusRequest(Constants.APP));
+            logWorker.log("checkForLoadedData 2");
+
+            busWorker.post(new ConnectivityStatusRequest(classType));
 
         } else {
+
+            logWorker.log("checkForLoadedData 1");
 
             busWorker.post(new Events.FetchedStoreDataEvent());
         }
@@ -145,7 +152,7 @@ public class App extends Application {
 
         logWorker.log("getData");
 
-        rxSubscriptions.add(netWorker.newGetRouteData(url).subscribeOn(Schedulers.newThread())
+        rxSubscriptions.add(netWorker.newGetRouteData(url).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JSONObject>() {
                     @Override

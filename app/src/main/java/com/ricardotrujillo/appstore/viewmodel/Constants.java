@@ -3,8 +3,8 @@ package com.ricardotrujillo.appstore.viewmodel;
 public class Constants {
 
     final public static int SOCKET_TIME_OUT = 30000;
-    final public static String FREE_URL = "https://itunes.apple.com/us/rss/topfreeapplications/limit=200/json";
-    final public static String PAID_URL = "https://itunes.apple.com/us/rss/toppaidapplications/limit=200/json";
+    final public static String FREE_URL = "https://itunes.apple.com/us/rss/topfreeapplications/limit=50/json";
+    final public static String PAID_URL = "https://itunes.apple.com/us/rss/toppaidapplications/limit=50/json";
     final public static String TAG = "TAG";
 
     final public static String LogTag = "Test";
@@ -21,6 +21,7 @@ public class Constants {
     final public static int SPAN_COUNT = 3;
     final public static int APP = 0;
     final public static int MAIN_ACTIVITY = 1;
+    final public static int ENTRY_ACTIVITY = 2;
 
     final public static String STRING_TO_ERASE = "im:";
     final public static String NEW_STRING = "";

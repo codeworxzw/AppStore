@@ -122,6 +122,7 @@ public class NetWorker {
                             rxBusWorker.send(new Events.ConnectivityStatusResponse());
                         }
                     });
+
                 }
             }
         }));
@@ -175,6 +176,7 @@ public class NetWorker {
         return Observable.defer(new Func0<Observable<JSONObject>>() {
             @Override
             public Observable<JSONObject> call() {
+
                 try {
 
                     return Observable.just(getRouteData(url));
