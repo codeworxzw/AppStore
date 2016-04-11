@@ -147,11 +147,11 @@ public final class Store {
                 }
 
                 public static final class Attributes {
-                    public final float amount;
+                    public final double amount;
                     public final String currency;
 
                     public Attributes(String amount, String currency) {
-                        this.amount = Float.valueOf(amount);
+                        this.amount = Double.valueOf(amount);
                         this.currency = currency;
                     }
                 }
