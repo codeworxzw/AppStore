@@ -136,7 +136,7 @@ public class App extends Application {
 
                 netWorker.isNetworkAvailable = true;
 
-                getData(Constants.FREE_URL);
+                getData(Constants.PAID_URL);
 
             } else {
 

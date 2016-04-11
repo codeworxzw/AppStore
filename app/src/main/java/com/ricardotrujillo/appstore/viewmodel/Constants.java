@@ -3,8 +3,8 @@ package com.ricardotrujillo.appstore.viewmodel;
 public class Constants {
 
     final public static int SOCKET_TIME_OUT = 30000;
-    final public static String FREE_URL = "https://itunes.apple.com/us/rss/topfreeapplications/limit=50/json";
-    final public static String PAID_URL = "https://itunes.apple.com/us/rss/toppaidapplications/limit=50/json";
+    final public static String FREE_URL = "https://itunes.apple.com/us/rss/topfreeapplications/limit=20/json";
+    final public static String PAID_URL = "https://itunes.apple.com/us/rss/toppaidapplications/limit=20/json";
     final public static String TAG = "TAG";
 
     final public static String LogTag = "Test";
